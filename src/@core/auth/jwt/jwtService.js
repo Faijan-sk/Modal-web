@@ -141,6 +141,10 @@ export default class JwtService {
     
   }
 
+  updateProfile(...args){
+    console.log('update profile service')
+    return axios.post(this.jwtConfig.updatetProfileEndpoint , ...args)
+  }
  
 
 

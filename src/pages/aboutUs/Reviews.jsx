@@ -5,7 +5,7 @@ const reviews = [
   {
     id: 1,
     name: "JOHN D.",
-    role: "Patient",
+    role: "modal",
     avatar: "https://i.pravatar.cc/80?img=12",
     rating: 5,
     text: "Working with this clinic has been an incredible experience. The staff is caring, professional, and always makes me feel comfortable. I always feel heard and supported during every visit."
@@ -13,7 +13,7 @@ const reviews = [
   {
     id: 2,
     name: "SOPHIA P.",
-    role: "Patient",
+    role: "modal",
     avatar: "https://i.pravatar.cc/80?img=32",
     rating: 5,
     text: "From my very first appointment, I knew I was in good hands. The team is thorough and kind, and they take the time to explain everything clearly. I feel more confident about my health than ever."
@@ -21,15 +21,15 @@ const reviews = [
   {
     id: 3,
     name: "MICHAEL R.",
-    role: "Patient",
+    role: "modal",
     avatar: "https://i.pravatar.cc/80?img=45",
     rating: 4,
-    text: "They truly go above and beyond. The appointments run on time, the follow-ups are consistent, and I never feel rushed. I appreciate how much they genuinely care about their patients."
+    text: "They truly go above and beyond. The appointments run on time, the follow-ups are consistent, and I never feel rushed. I appreciate how much they genuinely care about their modals."
   },
   {
     id: 4,
     name: "EMILY W.",
-    role: "Patient",
+    role: "modal",
     avatar: "https://i.pravatar.cc/80?img=5",
     rating: 5,
     text: "I was nervous at first, but the warmth and encouragement from the entire team made all the difference. Their guidance has helped me build healthier habits that actually last."
@@ -37,7 +37,7 @@ const reviews = [
   {
     id: 5,
     name: "DAVID K.",
-    role: "Patient",
+    role: "modal",
     avatar: "https://i.pravatar.cc/80?img=20",
     rating: 5,
     text: "The care here is on another level. They listen, ask the right questions, and personalize every recommendation. I recommend this clinic to family and friends all the time."
@@ -45,7 +45,7 @@ const reviews = [
   {
     id: 6,
     name: "LARA S.",
-    role: "Patient",
+    role: "modal",
     avatar: "https://i.pravatar.cc/80?img=28",
     rating: 5,
     text: "I love how attentive and organized the staff is. Scheduling is easy, reminders are helpful, and the environment is always clean and welcoming. I’m so glad I found this place."
@@ -53,7 +53,7 @@ const reviews = [
   {
     id: 7,
     name: "ADAM T.",
-    role: "Patient",
+    role: "modal",
     avatar: "https://i.pravatar.cc/80?img=15",
     rating: 4,
     text: "They were recommended to me and I’m really happy I came. My treatment plan was clear and effective, and I always feel like my time and concerns are respected."
@@ -61,7 +61,7 @@ const reviews = [
   {
     id: 8,
     name: "NORA H.",
-    role: "Patient",
+    role: "modal",
     avatar: "https://i.pravatar.cc/80?img=36",
     rating: 5,
     text: "The entire experience has been seamless—from the front desk to follow-up calls. I feel truly cared for and supported. I’m extremely grateful for their dedication."
@@ -82,12 +82,9 @@ const TestimonialsSection = () => {
 
         <h2 className="mb-10 text-3xl md:text-4xl font-serif tracking-[0.35em] text-pink-500 uppercase text-center">
           REAL PEOPLE. REAL STORIES
-          </h2>
-
-
-        
+          </h2>     
         <p style={{ marginTop: "15px", color: "#555" }}>
-          What our patients are saying
+          What our modals are saying
         </p>
       </div>
 

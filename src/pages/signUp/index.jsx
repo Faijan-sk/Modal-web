@@ -45,6 +45,7 @@ function Index({ onSignupSuccess }) {
   const [selectedUserType, setSelectedUserType] = useState("User Type");
   const [selectedCountry, setSelectedCountry] = useState(countryOptions[0]);
   const [submitButton, SetSubmitButton] = useState("Create Account");
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -54,7 +55,10 @@ function Index({ onSignupSuccess }) {
     password: "",
     confirmPassword: "",
   });
+
+  // errors.api => server / API error (jaise "Email already registered")
   const [errors, setErrors] = useState({});
+
   const [sodiumReady, setSodiumReady] = useState(false); // ✅ libsodium ready hone ka wait
 
   useEffect(() => {
@@ -71,6 +75,7 @@ function Index({ onSignupSuccess }) {
   const handleUserTypeSelect = (value) => {
     setSelectedUserType(value);
     setOpenDropdown(null);
+    setErrors((prev) => ({ ...prev, userType: "" }));
   };
 
   const handleCountrySelect = (country) => {
@@ -186,6 +191,9 @@ function Index({ onSignupSuccess }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // ✅ Har submit ke start pe API error clear kar do
+    setErrors((prev) => ({ ...prev, api: "" }));
+
     const newErrors = {};
 
     if (!selectedUserType || selectedUserType === "User Type") {
@@ -243,7 +251,10 @@ function Index({ onSignupSuccess }) {
       encryptedConfirmPassword = encryptedPassword;
     } catch (encErr) {
       console.error("Password encryption failed:", encErr);
-      alert("Something went wrong while encrypting password.");
+      setErrors((prev) => ({
+        ...prev,
+        api: "Something went wrong while encrypting password.",
+      }));
       return;
     }
 
@@ -272,16 +283,9 @@ function Index({ onSignupSuccess }) {
       SetSubmitButton("Creating...");
       const response = await useJwt.signup(payload);
       console.log("Signup response:", response);
-      alert("Form submitted successfully!");
+      alert("Account created successfully!");
 
-      // ✅ Signup success → modal ko band karo (Navbar se)
-      if (typeof onSignupSuccess === "function") {
-        onSignupSuccess();
-      }
-    } catch (err) {
-      console.error("Signup error:", err);
-      alert("Something went wrong while creating account.");
-    } finally {
+      // ✅ Signup success → fields reset + errors clear
       setFormData({
         firstName: "",
         lastName: "",
@@ -293,7 +297,38 @@ function Index({ onSignupSuccess }) {
       });
       setSelectedUserType("User Type");
       setSelectedCountry(countryOptions[0]);
-      setErrors({});
+      setErrors({}); // sab errors hata do
+
+      // ✅ Signup success → modal ko band karo (Navbar se)
+      if (typeof onSignupSuccess === "function") {
+        onSignupSuccess();
+      }
+    } catch (err) {
+      console.error("Signup error:", err);
+
+      // ✅ Backend se aane wala message dikhana (jaise {"detail":"Email already registered"})
+      let apiMessage = "Something went wrong while creating account.";
+
+      // agar axios type response hai
+      if (err?.response?.data) {
+        const data = err.response.data;
+        if (typeof data === "string") {
+          apiMessage = data;
+        } else if (data.detail) {
+          apiMessage = data.detail;
+        } else if (data.message) {
+          apiMessage = data.message;
+        }
+      }
+
+      setErrors((prev) => ({
+        ...prev,
+        api: apiMessage,
+      }));
+
+      // ❌ Yaha form reset NAHI karna hai
+    } finally {
+      // sirf button ka text wapas normal karo
       SetSubmitButton("Create Account");
     }
   };
@@ -547,6 +582,11 @@ function Index({ onSignupSuccess }) {
           )}
         </div>
       </div>
+
+      {/* 🔴 API / SERVER ERROR MESSAGE (jaise: "Email already registered") */}
+      {errors.api && (
+        <p className="text-sm text-red-500 text-center">{errors.api}</p>
+      )}
 
       {/* SUBMIT BUTTON */}
       <button

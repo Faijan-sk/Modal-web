@@ -1,22 +1,121 @@
 // src/pages/signUp/ProfessionalInfoForm.jsx
 import React, { useState } from "react";
 
+/** Reusable TagInput with gradient */
+function TagInput({
+  name,
+  label,
+  helperText,
+  placeholder,
+  values,
+  onChange,
+  error,
+}) {
+  const [inputValue, setInputValue] = useState("");
+
+  const addTag = (tag) => {
+    const value = tag.trim();
+    if (!value) return;
+
+    if (values.includes(value)) return;
+
+    onChange(name, [...values, value]);
+    setInputValue("");
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      addTag(inputValue);
+    }
+  };
+
+  const handleBlur = () => {
+    if (inputValue.trim()) addTag(inputValue);
+  };
+
+  const removeTag = (tag) => {
+    onChange(
+      name,
+      values.filter((t) => t !== tag)
+    );
+  };
+
+  return (
+    <div>
+      <label className="text-sm font-medium mb-1 text-gray-700 block">
+        {label}
+        {helperText && (
+          <span className="text-xs text-gray-500 ml-1">{helperText}</span>
+        )}
+      </label>
+
+      <div className="border border-gray-300 rounded-lg px-2 py-2 w-full flex flex-wrap items-center gap-2 bg-white focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
+
+        {/* Chips with Primary → White Gradient + TEXT PRIMARY */}
+        {values.map((tag) => (
+          <span
+            key={tag}
+            className="flex items-center gap-1 rounded-full px-3 py-1 text-xs 
+                       bg-gradient-to-r from-primary/80 to-white 
+                       text-primary font-medium shadow border border-primary/30"
+          >
+            {tag}
+            <button
+              type="button"
+              onClick={() => removeTag(tag)}
+              className="text-primary text-[10px] leading-none ml-1 hover:opacity-70"
+            >
+              ✕
+            </button>
+          </span>
+        ))}
+
+        {/* Input */}
+        <input
+          type="text"
+          className="flex-1 min-w-[120px] bg-transparent outline-none text-sm py-1 px-1"
+          placeholder={placeholder}
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onBlur={handleBlur}
+        />
+      </div>
+
+      {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+    </div>
+  );
+}
+
 function ProfessionalInfoForm({ onSubmitSuccess }) {
   const [formData, setFormData] = useState({
     experience_level: "",
-    Interrested_catagories: "",
-    languages: "",
-    skills: "",
+    Interrested_catagories: [],
+    languages: [],
+    skills: [],
   });
 
   const [errors, setErrors] = useState({});
 
-  const handleChange = (e) => {
+  const handleExperienceChange = (e) => {
     const { name, value } = e.target;
 
     setFormData((prev) => ({
       ...prev,
       [name]: value,
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
+  };
+
+  const handleTagChange = (name, values) => {
+    setFormData((prev) => ({
+      ...prev,
+      [name]: values,
     }));
 
     setErrors((prev) => ({
@@ -38,8 +137,12 @@ function ProfessionalInfoForm({ onSubmitSuccess }) {
     const newErrors = {};
 
     requiredFields.forEach((field) => {
-      if (!formData[field] || formData[field].trim() === "") {
-        newErrors[field] = "This field is required.";
+      const value = formData[field];
+
+      if (Array.isArray(value)) {
+        if (value.length === 0) newErrors[field] = "This field is required.";
+      } else {
+        if (!value || value.trim() === "") newErrors[field] = "This field is required.";
       }
     });
 
@@ -48,11 +151,16 @@ function ProfessionalInfoForm({ onSubmitSuccess }) {
       return;
     }
 
-    // Step 1 success → parent ko data bhejo
-    if (onSubmitSuccess) {
-      onSubmitSuccess(formData);
-    } else {
-      console.log("PROFESSIONAL INFO PAYLOAD:", formData);
+    const payload = {
+      ...formData,
+      Interrested_catagories: formData.Interrested_catagories.join(", "),
+      languages: formData.languages.join(", "),
+      skills: formData.skills.join(", "),
+    };
+
+    if (onSubmitSuccess) onSubmitSuccess(payload);
+    else {
+      console.log("PROFESSIONAL INFO PAYLOAD:", payload);
       alert("Professional info form submitted (check console).");
     }
   };
@@ -74,7 +182,7 @@ function ProfessionalInfoForm({ onSubmitSuccess }) {
         <select
           name="experience_level"
           value={formData.experience_level}
-          onChange={handleChange}
+          onChange={handleExperienceChange}
           className="border border-gray-300 rounded-lg px-3 py-2 w-full bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none"
         >
           <option value="">Select experience level</option>
@@ -84,76 +192,40 @@ function ProfessionalInfoForm({ onSubmitSuccess }) {
           <option value="Expert">Expert</option>
         </select>
         {errors.experience_level && (
-          <p className="mt-1 text-xs text-red-500">
-            {errors.experience_level}
-          </p>
+          <p className="mt-1 text-xs text-red-500">{errors.experience_level}</p>
         )}
       </div>
 
-      {/* Interested Categories */}
-      <div>
-        <label className="text-sm font-medium mb-1 text-gray-700 block">
-          Interested Categories
-          <span className="text-xs text-gray-500 ml-1">
-            (comma separated or short description)
-          </span>
-        </label>
-        <textarea
-          name="Interrested_catagories"
-          placeholder="e.g. Fashion, Commercial, Runway, Print, TVC..."
-          value={formData.Interrested_catagories}
-          onChange={handleChange}
-          rows={3}
-          className="border border-gray-300 rounded-lg px-3 py-2 w-full resize-y focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-        />
-        {errors.Interrested_catagories && (
-          <p className="mt-1 text-xs text-red-500">
-            {errors.Interrested_catagories}
-          </p>
-        )}
-      </div>
+      {/* Tag Inputs */}
+      <TagInput
+        name="Interrested_catagories"
+        label="Interested Categories"
+        helperText="(type + Enter)"
+        placeholder="Fashion, Commercial, Runway..."
+        values={formData.Interrested_catagories}
+        onChange={handleTagChange}
+        error={errors.Interrested_catagories}
+      />
 
-      {/* Languages */}
-      <div>
-        <label className="text-sm font-medium mb-1 text-gray-700 block">
-          Languages
-          <span className="text-xs text-gray-500 ml-1">
-            (comma separated)
-          </span>
-        </label>
-        <input
-          type="text"
-          name="languages"
-          placeholder="e.g. English, Hindi, Marathi"
-          value={formData.languages}
-          onChange={handleChange}
-          className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-        />
-        {errors.languages && (
-          <p className="mt-1 text-xs text-red-500">{errors.languages}</p>
-        )}
-      </div>
+      <TagInput
+        name="languages"
+        label="Languages"
+        helperText="(type + Enter)"
+        placeholder="English, Hindi, Marathi..."
+        values={formData.languages}
+        onChange={handleTagChange}
+        error={errors.languages}
+      />
 
-      {/* Skills */}
-      <div>
-        <label className="text-sm font-medium mb-1 text-gray-700 block">
-          Skills
-          <span className="text-xs text-gray-500 ml-1">
-            (comma separated or description)
-          </span>
-        </label>
-        <textarea
-          name="skills"
-          placeholder="e.g. Ramp walk, Acting, Dancing, Posing, Voice-over..."
-          value={formData.skills}
-          onChange={handleChange}
-          rows={3}
-          className="border border-gray-300 rounded-lg px-3 py-2 w-full resize-y focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-        />
-        {errors.skills && (
-          <p className="mt-1 text-xs text-red-500">{errors.skills}</p>
-        )}
-      </div>
+      <TagInput
+        name="skills"
+        label="Skills"
+        helperText="(type + Enter)"
+        placeholder="Ramp walk, Acting, Dancing..."
+        values={formData.skills}
+        onChange={handleTagChange}
+        error={errors.skills}
+      />
 
       {/* Submit Button */}
       <button

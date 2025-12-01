@@ -19,14 +19,10 @@ const AppRouter = () => {
       <Routes>
         {/* Public routes */}
         
-        <Route path="/" element={<Home />} />
-       
-
-        
-                <Route path='/contact-us' element={<ContactUs />} />
-
+        <Route path="/" element={<Home />} />           
+          <Route path='/contact-us' element={<ContactUs />} />
           <Route path='/about-us' element={<AboutUs />} />
-           <Route path="/modals/:type" element={<ModalsListing />} />
+          <Route path="/modals/:type" element={<ModalsListing />} />
           <Route path="/dashboard" element={<div>Dashboard</div>} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path='/user_profile' element ={<UserProfile/>} />

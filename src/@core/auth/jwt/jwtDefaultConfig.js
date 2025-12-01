@@ -1,13 +1,19 @@
 // ** Auth Endpoints
 export default {
 
+  
+  storageTokenKeyName: "accessToken",
+  storageRefreshTokenKeyName: "refreshToken",
+
+  tokenType: "Bearer",
+
+
   /*
   * user EendPoints 
   */
   registerEndpoint: '/auth/register',
   loginEndpoint: '/auth/login',
-  otpVerifyEndPoint: '/api/auth/otp/verify-otp',
-  getUserByMobileEndPoint : '/api/auth/user/byNumber',
+  updatetProfileEndpoint : '/model/user/update-profile'
   
   
 }

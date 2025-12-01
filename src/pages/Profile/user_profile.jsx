@@ -2,40 +2,54 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+// ✅ Correct paths based on your files
 import ProfessionalInfoForm from "./../forms/ProfessionalInfoForm";
 import PhysicalAttributesForm from "./../forms/PhysicalAttributes";
+import MediaUploadForm from "./../forms/PortfolioForm"; // ⬅️ Portfolio / Media form
+import UpdateProfile from "./../forms/updateProfile"; // ⬅️ Step 1: Update Profile
 
 function UserProfile() {
-  // Start from Step 1 by default
+  // Start from Step 1
   const [progress, setProgress] = useState(0);
-  const [currentStep, setCurrentStep] = useState(1); // Step 1 open by default
+  const [currentStep, setCurrentStep] = useState(1);
 
   const navigate = useNavigate();
 
-  // First form success → 50% + open second form
-  const handleFirstFormSuccess = (data) => {
-    console.log("Professional Info Submitted:", data);
-    setProgress(50);
+  // STEP 1 → STEP 2 (Update Profile → Physical)
+  const handleUpdateProfileSuccess = (data) => {
+    console.log("Update Profile Submitted:", data);
+    setProgress(25); // ✅ Step 1 complete → 25%
     setCurrentStep(2);
   };
 
-  // Second form success → 100% + redirect
-  const handleSecondFormSuccess = (data) => {
+  // STEP 2 → STEP 3 (Physical → Educational / Professional)
+  const handlePhysicalSuccess = (data) => {
     console.log("Physical Attributes Submitted:", data);
-    setProgress(100);
-    navigate("/profile");
+    setProgress(50); // ✅ Step 2 complete → 50%
+    setCurrentStep(3);
   };
 
-  // ✅ LOGOUT HANDLER + PAGE REFRESH
+  // STEP 3 → STEP 4 (Educational / Professional → Portfolio)
+  const handleProfessionalSuccess = (data) => {
+    console.log("Educational / Professional Info Submitted:", data);
+    setProgress(75); // ✅ Step 3 complete → 75%
+    setCurrentStep(4);
+  };
+
+  // STEP 4 → COMPLETED → REDIRECT
+  const handlePortfolioSuccess = (data) => {
+    console.log("Portfolio / Media Submitted:", data);
+    setProgress(100); // ✅ Step 4 complete → 100%
+    navigate("/profile"); // ✅ final redirection
+  };
+
+  // LOGOUT
   const handleLogout = () => {
     try {
-      // Login ke time jo store kiya tha woh hata do
       localStorage.removeItem("authData");
     } catch (err) {
-      console.error("Error clearing authData from localStorage:", err);
+      console.error("Error clearing authData:", err);
     }
-
-    // ✅ Full page reload + home par redirect
     window.location.href = "/";
   };
 
@@ -49,13 +63,11 @@ function UserProfile() {
         </div>
 
         <div className="relative w-full h-2 rounded-full bg-gray-200">
-          {/* Filled Pink Bar */}
           <div
             className="h-2 rounded-full bg-pink-500 transition-all duration-500"
             style={{ width: `${progress}%` }}
           />
 
-          {/* Percentage Tooltip */}
           <div
             className="absolute -top-8 flex items-center justify-center"
             style={{ left: `${progress}%`, transform: "translateX(-50%)" }}
@@ -67,32 +79,53 @@ function UserProfile() {
         </div>
       </div>
 
-      {/* CONTENT */}
+      {/* MAIN CONTENT */}
       <div className="w-full max-w-2xl">
-        {/* STEP 1 – OPEN BY DEFAULT */}
+        {/* STEP 1: UPDATE PROFILE */}
         {currentStep === 1 && (
           <div>
             <h3 className="text-lg font-semibold mb-4">
-              Step 1 of 2 – Professional Information
+              Step 1 of 4 — Update Profile
             </h3>
-            <ProfessionalInfoForm onSubmitSuccess={handleFirstFormSuccess} />
+            {/* ⬇️ Make sure UpdateProfile form is accepting onSubmitSuccess prop */}
+            <UpdateProfile onSubmitSuccess={handleUpdateProfileSuccess} />
           </div>
         )}
 
-        {/* STEP 2 */}
+        {/* STEP 2: PHYSICAL ATTRIBUTES */}
         {currentStep === 2 && (
           <div>
             <h3 className="text-lg font-semibold mb-4">
-              Step 2 of 2 – Physical Attributes
+              Step 2 of 4 — Physical Attributes
             </h3>
-            <PhysicalAttributesForm
-              onSubmitSuccess={handleSecondFormSuccess}
+            <PhysicalAttributesForm onSubmitSuccess={handlePhysicalSuccess} />
+          </div>
+        )}
+
+        {/* STEP 3: EDUCATIONAL / PROFESSIONAL */}
+        {currentStep === 3 && (
+          <div>
+            <h3 className="text-lg font-semibold mb-4">
+              Step 3 of 4 — Educational / Professional Information
+            </h3>
+            <ProfessionalInfoForm
+              onSubmitSuccess={handleProfessionalSuccess}
             />
+          </div>
+        )}
+
+        {/* STEP 4: PORTFOLIO / MEDIA UPLOAD */}
+        {currentStep === 4 && (
+          <div>
+            <h3 className="text-lg font-semibold mb-4">
+              Step 4 of 4 — Portfolio Upload
+            </h3>
+            <MediaUploadForm onSubmitSuccess={handlePortfolioSuccess} />
           </div>
         )}
       </div>
 
-      {/* LOGOUT SECTION */}
+      {/* LOGOUT */}
       <p className="mt-4 text-center flex justify-center items-center">
         <span>Want to logout?</span>
         <button
