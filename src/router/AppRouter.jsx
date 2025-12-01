@@ -7,6 +7,7 @@ import Footer from '../components/layout/Footer'
 import ModalsListing from "../pages/modals/ModalListing"
 import AboutUs from "../pages/aboutUs/AboutUs"
 import ContactUs from "../pages/contactUs/ContactUs"
+import UserProfile from "../pages/Profile/user_profile"
 // import Login from "../pages/login/Login"
 
 const NotFound = () => <div>404 - Page not found</div>
@@ -28,6 +29,7 @@ const AppRouter = () => {
            <Route path="/modals/:type" element={<ModalsListing />} />
           <Route path="/dashboard" element={<div>Dashboard</div>} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path='/user_profile' element ={<UserProfile/>} />
        
 
         {/* 404 */}

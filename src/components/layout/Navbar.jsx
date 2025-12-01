@@ -1,31 +1,53 @@
 // src/components/NavbarRJ.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Logo from "./../../assets/logo/Drake-Logo.png";
 import SignUp from "../../../src/pages/signUp/index";
-import Login from "../../../src/pages/login/Login";
+import Login from "../../../src/pages/login/Login.jsx";
 
 const NavbarRJ = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
+
+  // ✅ Track login via localStorage
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("authData");
+      setIsLoggedIn(!!stored);
+    } catch (err) {
+      console.error("Error reading authData from localStorage:", err);
+      setIsLoggedIn(false);
+    }
+  }, []);
 
   const toggleDropdown = (name) => {
     setOpenDropdown(openDropdown === name ? null : name);
   };
 
-  // ✅ Common handler: jab bhi koi menu item click ho, sab band + scroll to top
   const handleNavItemClick = () => {
     setIsOpen(false);
     setOpenDropdown(null);
-
-    // ✅ Scroll to top (smooth)
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
+  };
+
+  // ✅ Login success handler: navbar ko update karo + modal band
+  const handleLoginSuccess = () => {
+    setIsLoggedIn(true);
+    setIsModalOpen(false);
+    setShowLogin(false);
+  };
+
+  // ✅ Signup success handler: sirf modal band karna hai
+  const handleSignupSuccess = () => {
+    setIsModalOpen(false);
+    setShowLogin(false);
   };
 
   return (
@@ -40,11 +62,7 @@ const NavbarRJ = () => {
               onClick={handleNavItemClick}
             >
               <div>
-                <img
-                  src={Logo}
-                  alt="Drake Online"
-                  className="h-[80px] w-auto"
-                />
+                <img src={Logo} alt="Drake Online" className="h-[80px] w-auto" />
               </div>
               <span className="text-[0.85rem] font-bold tracking-[0.12em] uppercase text-gray-800">
                 Drake Online
@@ -117,13 +135,14 @@ const NavbarRJ = () => {
                       />
                     </svg>
                   </button>
+
                   {openDropdown === "models" && (
                     <ul className="lg:absolute lg:top-full lg:left-0 bg-white lg:shadow-lg lg:rounded lg:min-w-[160px] lg:mt-1 pl-4 lg:pl-0 list-none m-0 p-0 lg:border lg:border-gray-200">
                       <li>
                         <Link
                           className="block px-4 py-2 text-sm text-black hover:text-primary hover:bg-[#f5f5f5] no-underline"
                           to="/modals/men"
-                          onClick={handleNavItemClick} // ✅ close + scroll
+                          onClick={handleNavItemClick}
                         >
                           Male Models
                         </Link>
@@ -150,6 +169,7 @@ const NavbarRJ = () => {
                   )}
                 </li>
 
+                {/* About Us */}
                 <li>
                   <Link
                     to="/about-us"
@@ -168,20 +188,8 @@ const NavbarRJ = () => {
                     className="w-full lg:w-auto flex items-center text-[0.85rem] font-medium tracking-[0.12em] uppercase px-[0.9rem] py-2 cursor-pointer !bg-transparent !border-none text-black hover:text-primary"
                   >
                     Services
-                    <svg
-                      className="w-3 h-3 ml-1 inline-block"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
                   </button>
+
                   {openDropdown === "talents" && (
                     <ul className="lg:absolute lg:top-full lg:left-0 bg-white lg:shadow-lg lg:rounded lg:min-w-[160px] lg:mt-1 pl-4 lg:pl-0 list-none m-0 p-0 lg:border lg:border-gray-200">
                       <li>
@@ -264,23 +272,32 @@ const NavbarRJ = () => {
               </ul>
             </div>
 
-            {/* RIGHT: Sign up button */}
-            <button
-              className="btn-drake-outline mt-3 lg:mt-0"
-              onClick={() => {
-                setShowLogin(false);
-                setIsModalOpen(true);
-                setOpenDropdown(null);
-                setIsOpen(false);
-                // Optional: sign up pe bhi scroll top chahiye to yaha bhi add kar sakte ho
-                window.scrollTo({
-                  top: 0,
-                  behavior: "smooth",
-                });
-              }}
-            >
-              Sign up
-            </button>
+            {/* RIGHT: Sign up / Profile button */}
+            {isLoggedIn ? (
+              <Link
+                to="/user_profile"
+                onClick={handleNavItemClick}
+                className="btn-drake-outline mt-3 lg:mt-0 no-underline flex items-center justify-center"
+              >
+                Profile
+              </Link>
+            ) : (
+              <button
+                className="btn-drake-outline mt-3 lg:mt-0"
+                onClick={() => {
+                  setShowLogin(false); // ⬅️ always start with SignUp
+                  setIsModalOpen(true);
+                  setOpenDropdown(null);
+                  setIsOpen(false);
+                  window.scrollTo({
+                    top: 0,
+                    behavior: "smooth",
+                  });
+                }}
+              >
+                Sign up
+              </button>
+            )}
           </div>
         </nav>
       </header>
@@ -288,9 +305,7 @@ const NavbarRJ = () => {
       {/* MODAL OVERLAY */}
       <div
         className={`fixed inset-0 z-[1100] flex items-center justify-center bg-black/30 backdrop-blur-sm transition-opacity duration-300 ${
-          isModalOpen
-            ? "opacity-100 pointer-events-auto"
-            : "opacity-0 pointer-events-none"
+          isModalOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
         onClick={() => {
           setIsModalOpen(false);
@@ -319,30 +334,36 @@ const NavbarRJ = () => {
 
           {/* Modal content */}
           <div className="mt-2">
-            {showLogin ? <Login /> : <SignUp />}
-
             {showLogin ? (
-              <p className="mt-2 text-center flex justify-center items-center">
-                <span>Don&apos;t have an account?</span>
-                <button
-                  type="button"
-                  className="ml-1 font-bold text-primary underline-offset-2 hover:underline cursor-pointer"
-                  onClick={() => setShowLogin(false)}
-                >
-                  Create new account
-                </button>
-              </p>
+              <>
+                {/* ✅ Yaha Login form dikhega */}
+                <Login onLoginSuccess={handleLoginSuccess} />
+                <p className="mt-2 text-center flex justify-center items-center">
+                  <span>Don&apos;t have an account?</span>
+                  <button
+                    type="button"
+                    className="ml-1 font-bold text-primary underline-offset-2 hover:underline cursor-pointer"
+                    onClick={() => setShowLogin(false)}
+                  >
+                    Create new account
+                  </button>
+                </p>
+              </>
             ) : (
-              <p className="mt-2 text-center flex justify-center items-center">
-                <span>Already have an account?</span>
-                <button
-                  type="button"
-                  className="ml-1 font-bold text-primary underline-offset-2 hover:underline cursor-pointer"
-                  onClick={() => setShowLogin(true)}
-                >
-                  Login
-                </button>
-              </p>
+              <>
+                {/* ✅ Yaha SignUp form dikhega */}
+                <SignUp onSignupSuccess={handleSignupSuccess} />
+                <p className="mt-2 text-center flex justify-center items-center">
+                  <span>Already have an account?</span>
+                  <button
+                    type="button"
+                    className="ml-1 font-bold text-primary underline-offset-2 hover:underline cursor-pointer"
+                    onClick={() => setShowLogin(true)}
+                  >
+                    Login
+                  </button>
+                </p>
+              </>
             )}
           </div>
         </div>

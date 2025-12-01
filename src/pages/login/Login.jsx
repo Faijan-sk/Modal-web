@@ -1,13 +1,16 @@
 // src/pages/login/Login.jsx
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import useJwt from "../../endpoints/jwt/useJwt";
 import sodium from "libsodium-wrappers";
 
-// ✅ Static public key (server se mila hua) - BASE64
-//const PUBLIC_KEY_BASE64 = "P7FnNMp37TGfrU3Jkwitp2ESsSWIMIegHby/GybleDE=";
-const PUBLIC_KEY_BASE64 = "203db88555e364bf7f8b8a68b7dc24357c9c192ff9ad82002fe63885849ee50e";
+// ✅ Static public key (server se mila hua) - HEX
+const PUBLIC_KEY_HEX =
+  "203db88555e364bf7f8b8a68b7dc24357c9c192ff9ad82002fe63885849ee50e";
 
-function Login() {
+function Login({ onLoginSuccess }) {
+  const navigate = useNavigate(); // ✅ NAVIGATE HOOK
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -15,9 +18,8 @@ function Login() {
 
   const [errors, setErrors] = useState({});
   const [submitButton, setSubmitButton] = useState("Login");
-  const [sodiumReady, setSodiumReady] = useState(false);
+  const [sodiumReady, setSodiumReady] = useState(false); // ✅ libsodium ready hone ka wait
 
-  // ✅ libsodium ready hone ka wait
   useEffect(() => {
     (async () => {
       await sodium.ready;
@@ -53,13 +55,8 @@ function Login() {
       throw new Error("Crypto library not ready");
     }
 
-    // public key ko base64 se bytes me convert
-    /* const publicKeyBytes = sodium.from_base64(
-      PUBLIC_KEY_BASE64,
-      sodium.base64_variants.ORIGINAL
-    ); */
-
-    const publicKey = sodium.from_hex(PUBLIC_KEY_BASE64.trim());
+    // public key ko HEX se bytes me convert
+    const publicKey = sodium.from_hex(PUBLIC_KEY_HEX.trim());
 
     // password ko bytes me convert
     const messageBytes = sodium.from_string(password);
@@ -80,11 +77,9 @@ function Login() {
     e.preventDefault();
 
     const newErrors = {};
-
     if (!formData.email.trim()) {
       newErrors.email = "Email is required.";
     }
-
     if (!formData.password) {
       newErrors.password = "Password is required.";
     }
@@ -105,21 +100,29 @@ function Login() {
       // ✅ Yaha password encrypt ho raha hai
       const encryptedPassword = await encryptPassword(formData.password);
 
-      debugger;
       const response = await useJwt.login({
         email: formData.email,
-        password: encryptedPassword, // 👈 ab encrypted password jaa raha hai
+        password: encryptedPassword, // 👈 encrypted password jaa raha hai
       });
-      debugger;
 
-      // Demo ke liye alert
-      alert("Login request submitted!");
+      // ✅ If response code 200 or 201 → redirect to /user_profile
+      if (response?.status === 200 || response?.status === 201) {
+        const authPayload = response.data || response;
+        localStorage.setItem("authData", JSON.stringify(authPayload));
+
+        // ✅ Navbar ko batao ke login success ho gaya (modal band + Profile button)
+        if (typeof onLoginSuccess === "function") {
+          onLoginSuccess();
+        }
+
+        // ✅ SUCCESSFUL LOGIN → USER PROFILE PAR BEJ DO
+        navigate("/");
+      } else {
+        alert("Invalid credentials or something went wrong.");
+      }
 
       // Optional: reset form
-      setFormData({
-        email: "",
-        password: "",
-      });
+      setFormData({ email: "", password: "" });
       setErrors({});
       setSubmitButton("Login");
     } catch (err) {
@@ -130,7 +133,10 @@ function Login() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-2xl space-y-6 mx-auto">
+    <form
+      onSubmit={handleSubmit}
+      className="w-full max-w-2xl space-y-6 mx-auto"
+    >
       {/* TITLE */}
       <h2 className="text-xl font-semibold tracking-[0.12em] uppercase text-center">
         Login

@@ -3,9 +3,10 @@ import React, { useState, useEffect } from "react";
 import useJwt from "./../../endpoints/jwt/useJwt";
 import sodium from "libsodium-wrappers";
 
-// ✅ Static public key (server se mila hua) - BASE64
+// ✅ Static public key (server se mila hua) - HEX
 // same key jo tum login me use kar rahe ho
-const PUBLIC_KEY_BASE64 = "P7FnNMp37TGfrU3Jkwitp2ESsSWIMIegHby/GybleDE=";
+const PUBLIC_KEY_HEX =
+  "203db88555e364bf7f8b8a68b7dc24357c9c192ff9ad82002fe63885849ee50e";
 
 const countryOptions = [
   { code: "+91", label: "India", flag: "🇮🇳" },
@@ -21,11 +22,8 @@ const encryptPassword = async (password, sodiumReady) => {
     throw new Error("Crypto library not ready");
   }
 
-  // public key ko base64 se bytes me convert
-  const publicKeyBytes = sodium.from_base64(
-    PUBLIC_KEY_BASE64,
-    sodium.base64_variants.ORIGINAL
-  );
+  // public key ko HEX se bytes me convert
+  const publicKeyBytes = sodium.from_hex(PUBLIC_KEY_HEX);
 
   // password ko bytes me convert
   const messageBytes = sodium.from_string(password);
@@ -42,7 +40,7 @@ const encryptPassword = async (password, sodiumReady) => {
   return encrypted;
 };
 
-function Index() {
+function Index({ onSignupSuccess }) {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [selectedUserType, setSelectedUserType] = useState("User Type");
   const [selectedCountry, setSelectedCountry] = useState(countryOptions[0]);
@@ -56,11 +54,9 @@ function Index() {
     password: "",
     confirmPassword: "",
   });
-
   const [errors, setErrors] = useState({});
-  const [sodiumReady, setSodiumReady] = useState(false);
+  const [sodiumReady, setSodiumReady] = useState(false); // ✅ libsodium ready hone ka wait
 
-  // ✅ libsodium ready hone ka wait
   useEffect(() => {
     (async () => {
       await sodium.ready;
@@ -140,6 +136,7 @@ function Index() {
   const handlePhoneChange = (e) => {
     let value = e.target.value;
     value = value.replace(/\D/g, ""); // only digits
+
     if (value.length > 10) {
       value = value.slice(0, 10);
       setErrors((prev) => ({
@@ -154,6 +151,7 @@ function Index() {
     } else {
       setErrors((prev) => ({ ...prev, phone: "" }));
     }
+
     setFormData((prev) => ({ ...prev, phone: value }));
   };
 
@@ -193,41 +191,33 @@ function Index() {
     if (!selectedUserType || selectedUserType === "User Type") {
       newErrors.userType = "Please select a User Type.";
     }
-
     if (!formData.firstName.trim()) {
       newErrors.firstName = "First Name is required.";
     }
-
     if (!formData.lastName.trim()) {
       newErrors.lastName = "Last Name is required.";
     }
-
     if (!formData.dob) {
       newErrors.dob = "Date of Birth is required.";
     }
-
     if (!formData.email.trim()) {
       newErrors.email = "Email is required.";
     }
-
     if (!selectedCountry) {
       newErrors.countryCode = "Country code is required.";
     }
-
     if (!formData.phone.trim()) {
       newErrors.phone = "Phone number is required.";
     } else if (formData.phone.length !== 10) {
       newErrors.phone = "Phone number must be exactly 10 digits.";
     }
-
     if (!formData.password) {
       newErrors.password = "Password is required.";
     }
     if (!formData.confirmPassword) {
       newErrors.confirmPassword = "Confirm Password is required.";
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword =
-        "Password and Confirm Password do not match.";
+      newErrors.confirmPassword = "Password and Confirm Password do not match.";
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -237,9 +227,7 @@ function Index() {
 
     // ✅ libsodium ready check (same as login)
     if (!sodiumReady) {
-      alert(
-        "Please wait, security library is loading. Try again in a moment."
-      );
+      alert("Please wait, security library is loading. Try again in a moment.");
       return;
     }
 
@@ -249,10 +237,7 @@ function Index() {
 
     try {
       // 👉 seal-box se encrypt kar rahe hain
-      encryptedPassword = await encryptPassword(
-        formData.password,
-        sodiumReady
-      );
+      encryptedPassword = await encryptPassword(formData.password, sodiumReady);
 
       // 👉 confirm_password ke liye same encrypted token reuse
       encryptedConfirmPassword = encryptedPassword;
@@ -288,6 +273,11 @@ function Index() {
       const response = await useJwt.signup(payload);
       console.log("Signup response:", response);
       alert("Form submitted successfully!");
+
+      // ✅ Signup success → modal ko band karo (Navbar se)
+      if (typeof onSignupSuccess === "function") {
+        onSignupSuccess();
+      }
     } catch (err) {
       console.error("Signup error:", err);
       alert("Something went wrong while creating account.");
@@ -320,7 +310,6 @@ function Index() {
           className="btn-animated-outline w-full lg:w-auto flex items-center justify-between text-[0.85rem] font-medium tracking-[0.12em] uppercase px-[0.9rem] py-2 cursor-pointer bg-transparent border border-gray-300 rounded-md text-black hover:text-primary hover:border-primary"
         >
           <p className="text-primary">{selectedUserType}</p>
-
           <svg
             className="w-3 h-3 ml-2 inline-block"
             fill="none"
@@ -347,13 +336,10 @@ function Index() {
                 Model
               </button>
             </li>
-
             <li>
               <button
                 type="button"
-                onClick={() =>
-                  handleUserTypeSelect("Casting Company")
-                }
+                onClick={() => handleUserTypeSelect("Casting Company")}
                 className="w-full text-left block px-4 py-2 text-sm text-black hover:text-primary hover:bg-[#f5f5f5]"
               >
                 Casting Company

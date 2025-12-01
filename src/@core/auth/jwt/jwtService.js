@@ -2,7 +2,7 @@ import axios from 'axios'
 import jwtDefaultConfig from './jwtDefaultConfig'
 
 // PRODUCTION GCP Configuration - PORT 8080 add kiya gaya hai
-axios.defaults.baseURL = 'http://192.168.1.10:8000/'
+axios.defaults.baseURL = 'http://192.168.29.35:8000/'
 // axios.defaults.baseURL = 'http://34.71.120.171:8080/'
 
 export default class JwtService {
@@ -125,6 +125,7 @@ export default class JwtService {
   */
   signup(...args) {
     console.log('Calling register API');
+    console.log("LLLLLLLLLLLLLLLLLLLLLLLLLLLLL")
     return axios.post(this.jwtConfig.registerEndpoint, ...args)
   }
 
@@ -135,7 +136,9 @@ export default class JwtService {
 
   login(...args) {
     console.log('Calling login API');
+    
     return axios.post(this.jwtConfig.loginEndpoint, ...args)
+    
   }
 
  
