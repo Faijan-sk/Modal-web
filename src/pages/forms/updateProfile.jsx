@@ -158,7 +158,7 @@ function BasicInfoForm({ onSubmitSuccess }) {
           name="current_city"
           value={formData.current_city}
           onChange={handleChange}
-          placeholder="e.g. Mumbai"
+          placeholder="Enter City name here"
           className="border border-gray-300 rounded-lg px-3 py-2 w-full bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm"
         />
         {errors.current_city && (
@@ -176,7 +176,7 @@ function BasicInfoForm({ onSubmitSuccess }) {
           name="nationality"
           value={formData.nationality}
           onChange={handleChange}
-          placeholder="e.g. Indian"
+          placeholder="Enter Country name here"
           className="border border-gray-300 rounded-lg px-3 py-2 w-full bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm"
         />
         {errors.nationality && (
@@ -194,7 +194,7 @@ function BasicInfoForm({ onSubmitSuccess }) {
           name="home_city"
           value={formData.home_city}
           onChange={handleChange}
-          placeholder="e.g. Nashik"
+          placeholder="Enter City name here"
           className="border border-gray-300 rounded-lg px-3 py-2 w-full bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm"
         />
         {errors.home_city && (

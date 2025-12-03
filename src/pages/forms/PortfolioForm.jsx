@@ -46,6 +46,7 @@ function MediaUploadForm({ onSubmitSuccess }) {
 
     const newErrors = {};
 
+    // 🔍 validation – saare required fields fill hone chahiye
     requiredFields.forEach((field) => {
       if (!formData[field]) {
         newErrors[field] = "This field is required.";
@@ -57,33 +58,41 @@ function MediaUploadForm({ onSubmitSuccess }) {
       return;
     }
 
-    // 🔹 Yaha se FormData banayenge — backend ko aise hi chahiye
-    const body = new FormData();
-    body.append("full_body_front", formData.full_body_front);
-    body.append("full_body_left_side", formData.full_body_left_side);
-    body.append("full_body_right_side", formData.full_body_right_side);
-    body.append("head_shot", formData.head_shot);
-    body.append("profile_photo", formData.profile_photo);
-    body.append("introduction_video", formData.introduction_video);
-
+    // 🔹 Yaha se har file ke liye ALAG API hit karenge (ek ek karke)
     try {
       setIsSubmitting(true);
       setApiError("");
 
-      // 🔥 tumhari method: e = FormData
-      const response = await useJwt.modelMediaSet(body);
+      const uploadResults = {};
 
-      console.log("MEDIA UPLOAD API RESPONSE:", response);
+      // sequential API calls (ek complete hone ke baad next)
+      for (const field of requiredFields) {
+        const file = formData[field];
+        if (!file) continue;
+
+        const body = new FormData();
+
+        // ✅ Backend requirement:
+        // kind = fieldName (string)
+        // file = file object
+        body.append("kind", field); // e.g. "full_body_front"
+        body.append("file", file);  // actual File
+
+        console.log(`Uploading "${field}"...`);
+        const response = await useJwt.modelMediaSet(body);
+        console.log(`Uploaded "${field}" response:`, response);
+
+        uploadResults[field] = response?.data || null;
+      }
 
       if (onSubmitSuccess) {
-        // parent ko API ka data ya kam se kam success notify
-        onSubmitSuccess(response?.data || {});
+        onSubmitSuccess(uploadResults);
       } else {
-        console.log("MEDIA UPLOAD PAYLOAD (FormData sent)");
-        alert("Media uploaded successfully (check console & network).");
+        console.log("All media uploaded (per-file API calls):", uploadResults);
+        alert("All media uploaded successfully (each file via separate API).");
       }
     } catch (error) {
-      console.error("Error while uploading media:", error);
+      console.error("Error while uploading media (per-file):", error);
       setApiError(
         error?.response?.data?.message ||
           "Something went wrong while uploading media."
@@ -99,7 +108,7 @@ function MediaUploadForm({ onSubmitSuccess }) {
       className="w-full max-w-3xl space-y-6 bg-white"
     >
       <h2 className="text-lg font-semibold tracking-[0.16em] uppercase text-gray-800">
-       Media
+        Media
       </h2>
 
       <p className="text-xs text-gray-500">
