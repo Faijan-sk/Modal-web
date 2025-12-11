@@ -62,7 +62,7 @@ const ModelPortfolioPage = () => {
               <aside className="lg:sticky lg:top-4 flex flex-col justify-between">
                 <div>
                   <h2 className="mt-25 text-2xl lg:text-3xl font-light italic tracking-wide mb-8">
-                    Noah Thomson
+                    Noah Thomsonsa
                   </h2>
 
                   <dl className="space-y-3 text-[11px] tracking-[0.24em] uppercase">

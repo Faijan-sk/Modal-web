@@ -137,7 +137,7 @@ function Post() {
           <button
             type="button"
             onClick={openFilePicker}
-            className="w-full h-full min-h-[200px] flex flex-col items-center justify-center
+            className="w-full h-full min-h-[100px] flex flex-col items-center justify-center
                        bg-gray-100 hover:bg-gray-200 transition-all duration-300"
           >
             {loading ? (

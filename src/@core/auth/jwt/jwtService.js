@@ -4,7 +4,7 @@ import jwtDefaultConfig from './jwtDefaultConfig'
 
 // PRODUCTION GCP Configuration - PORT 8080 add kiya gaya hai
 // axios.defaults.baseURL = 'http://192.168.29.35:8000/'
-axios.defaults.baseURL = 'http://192.168.29.210:8000/'
+axios.defaults.baseURL = 'http://192.168.1.19:8000/'
 
 // axios.defaults.baseURL = 'http://34.71.120.171:8080/'
 
@@ -200,5 +200,26 @@ export default class JwtService {
   getMediaToProfile (){
     return axios.get(this.jwtConfig.addMediaToProfileEndpoint)
   }
+
+  getModalProfileModalInfo(){
+    console.log("You are inside profile info")
+    return axios.get(this.jwtConfig.getProfileInfoEndPoint)
+  }
+
+  uploadVideo(formData) {
+    // Make sure the argument is FormData
+    if (!(formData instanceof FormData)) {
+      throw new Error("uploadVideo expects a FormData instance");
+    }
+    // Use axios.post so interceptors run
+    return axios.post(this.jwtConfig.uploadVideoToProfileEndpoint, formData);
+  }
+
+  AddLinksToProfile(...args){
+
+    return axios.post(this.jwtConfig.addLinksToProfileEndpoint, ...args)
+  }
+
+
 
 }

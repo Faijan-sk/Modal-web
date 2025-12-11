@@ -1,12 +1,33 @@
 // src/pages/signUp/Index.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import useJwt from "./../../endpoints/jwt/useJwt";
-import sodium from "libsodium-wrappers";
+import CryptoJS from "crypto-js";
 
-// ✅ Static public key (server se mila hua) - HEX
-// same key jo tum login me use kar rahe ho
-const PUBLIC_KEY_HEX =
-  "203db88555e364bf7f8b8a68b7dc24357c9c192ff9ad82002fe63885849ee50e";
+const SECRET_KEY = "12345678901234567890123456789012"; // 32 chars
+const IV = "1234567890123456"; // 16 chars
+
+export function aesEncrypt(text) {
+  const key = CryptoJS.enc.Utf8.parse(SECRET_KEY);
+  const iv = CryptoJS.enc.Utf8.parse(IV);
+
+  const encrypted = CryptoJS.AES.encrypt(text, key, {
+    iv: iv,
+    mode: CryptoJS.mode.CBC,
+    padding: CryptoJS.pad.Pkcs7,
+  });
+
+  return encrypted.toString(); // Base64 output
+}
+
+// Simple wrapper used in submit
+const encryptPassword = (password) => {
+  try {
+    return aesEncrypt(password);
+  } catch (err) {
+    console.error("AES Encryption Error:", err);
+    return null;
+  }
+};
 
 const countryOptions = [
   { code: "+91", label: "India", flag: "🇮🇳" },
@@ -15,30 +36,6 @@ const countryOptions = [
   { code: "+61", label: "Australia", flag: "🇦🇺" },
   { code: "+971", label: "UAE", flag: "🇦🇪" },
 ];
-
-// ✅ Helper: password ko login jaisa hi encrypt karo (crypto_box_seal)
-const encryptPassword = async (password, sodiumReady) => {
-  if (!sodiumReady) {
-    throw new Error("Crypto library not ready");
-  }
-
-  // public key ko HEX se bytes me convert
-  const publicKeyBytes = sodium.from_hex(PUBLIC_KEY_HEX);
-
-  // password ko bytes me convert
-  const messageBytes = sodium.from_string(password);
-
-  // seal box encryption (sirf server private key se decrypt hoga)
-  const cipherBytes = sodium.crypto_box_seal(messageBytes, publicKeyBytes);
-
-  // cipher ko base64 me convert karke bhejenge
-  const encrypted = sodium.to_base64(
-    cipherBytes,
-    sodium.base64_variants.ORIGINAL
-  );
-
-  return encrypted;
-};
 
 function Index({ onSignupSuccess }) {
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -58,15 +55,6 @@ function Index({ onSignupSuccess }) {
 
   // errors.api => server / API error (jaise "Email already registered")
   const [errors, setErrors] = useState({});
-
-  const [sodiumReady, setSodiumReady] = useState(false); // ✅ libsodium ready hone ka wait
-
-  useEffect(() => {
-    (async () => {
-      await sodium.ready;
-      setSodiumReady(true);
-    })();
-  }, []);
 
   const toggleDropdown = (name) => {
     setOpenDropdown(openDropdown === name ? null : name);
@@ -233,27 +221,14 @@ function Index({ onSignupSuccess }) {
       return;
     }
 
-    // ✅ libsodium ready check (same as login)
-    if (!sodiumReady) {
-      alert("Please wait, security library is loading. Try again in a moment.");
-      return;
-    }
+    // 🔐 AES encrypt password (crypto-js)
+    const encryptedPassword = encryptPassword(formData.password);
+    const encryptedConfirmPassword = encryptedPassword;
 
-    // 🔐 Encrypt password login jaisa hi, but sirf ek baar
-    let encryptedPassword;
-    let encryptedConfirmPassword;
-
-    try {
-      // 👉 seal-box se encrypt kar rahe hain
-      encryptedPassword = await encryptPassword(formData.password, sodiumReady);
-
-      // 👉 confirm_password ke liye same encrypted token reuse
-      encryptedConfirmPassword = encryptedPassword;
-    } catch (encErr) {
-      console.error("Password encryption failed:", encErr);
+    if (!encryptedPassword) {
       setErrors((prev) => ({
         ...prev,
-        api: "Something went wrong while encrypting password.",
+        api: "Password encryption failed.",
       }));
       return;
     }
@@ -479,9 +454,7 @@ function Index({ onSignupSuccess }) {
               <span className="text-sm font-semibold text-gray-800">
                 {selectedCountry.code}
               </span>
-              <span className="text-xs text-gray-500">
-                {selectedCountry.label}
-              </span>
+              <span className="text-xs text-gray-500">{selectedCountry.label}</span>
             </span>
             <svg
               className="w-4 h-4 ml-2 inline-block text-gray-500"
@@ -510,9 +483,7 @@ function Index({ onSignupSuccess }) {
                     <span className="flex items-center gap-2">
                       <span className="text-lg">{country.flag}</span>
                       <span className="font-medium">{country.code}</span>
-                      <span className="text-xs text-gray-500">
-                        {country.label}
-                      </span>
+                      <span className="text-xs text-gray-500">{country.label}</span>
                     </span>
                   </button>
                 </li>
@@ -576,17 +547,13 @@ function Index({ onSignupSuccess }) {
             className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-primary focus:ring-1 focus:ring-primary outline-none"
           />
           {errors.confirmPassword && (
-            <p className="mt-1 text-xs text-red-500">
-              {errors.confirmPassword}
-            </p>
+            <p className="mt-1 text-xs text-red-500">{errors.confirmPassword}</p>
           )}
         </div>
       </div>
 
       {/* 🔴 API / SERVER ERROR MESSAGE (jaise: "Email already registered") */}
-      {errors.api && (
-        <p className="text-sm text-red-500 text-center">{errors.api}</p>
-      )}
+      {errors.api && <p className="text-sm text-red-500 text-center">{errors.api}</p>}
 
       {/* SUBMIT BUTTON */}
       <button
