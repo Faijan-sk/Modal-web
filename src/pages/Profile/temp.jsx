@@ -5,6 +5,8 @@ import Videos from "./Videos";
 import Acchivements from "./Acchivements";
 import useJwt from "./../../endpoints/jwt/useJwt";
 
+import CircularProgress from "@mui/material/CircularProgress";
+
 // ===== LinkModal component (copied modal style from NavbarRJ) =====
 const LinkModal = ({ open, onClose, initialLinks = [], onSave }) => {
  const platforms = [
@@ -209,21 +211,9 @@ const ProfilePage = () => {
     fetchInfo();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-gray-600">Loading profile…</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-red-500">{error}</div>
-      </div>
-    );
-  }
+  // Note: per request, removed the early returns for loading / error states.
+  // The component now always renders the profile layout. We keep API logic
+  // intact; when profile is null we render sensible fallbacks so UI doesn't break.
 
   // safe destructure
   const basic = profile?.basic_info ?? {};
@@ -287,12 +277,6 @@ const ProfilePage = () => {
                 </div>
 
                 {/* Primary actions */}
-                {/* <div className="flex flex-wrap gap-2">
-                  
-                  <button className="bg-white px-4 py-2 text-sm font-medium rounded-full border border-gray-300 text-gray-800 hover:bg-gray-50 transition">
-                    Edit profile
-                  </button>
-                </div> */}
               </div>
 
               {/* Bio + short details */}
@@ -365,15 +349,6 @@ const ProfilePage = () => {
     Add Links
   </button>
 
-  {/* <span className="px-4 py-1 rounded-full bg-slate-200 text-gray-800 font-medium border border-gray-300 shadow-sm">
-    {professional?.willing_to_travel ? "Willing to travel" : "Local only"}
-  </span>
-
-  {physical?.body_type && (
-    <span className="px-4 py-1 rounded-full bg-slate-200 text-gray-800 font-medium border border-gray-300 shadow-sm">
-      {physical.body_type}
-    </span>
-  )} */}
 </div>
               </div>
             </div>
@@ -423,6 +398,7 @@ const ProfilePage = () => {
           {activeTab === "acchivements" && <Acchivements profile={profile} />}
         </div>
       </div>
+
 
       {/* Link modal */}
       <LinkModal

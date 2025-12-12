@@ -30,8 +30,9 @@ const encryptPassword = (password) => {
 };
 
 const countryOptions = [
-  { code: "+91", label: "India", flag: "🇮🇳" },
+  
   { code: "+1", label: "United States", flag: "🇺🇸" },
+  { code: "+91", label: "India", flag: "🇮🇳" },
   { code: "+44", label: "United Kingdom", flag: "🇬🇧" },
   { code: "+61", label: "Australia", flag: "🇦🇺" },
   { code: "+971", label: "UAE", flag: "🇦🇪" },
