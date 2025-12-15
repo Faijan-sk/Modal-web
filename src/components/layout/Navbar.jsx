@@ -260,7 +260,17 @@ const NavbarRJ = () => {
                 </li>
 
                 {/* Contact */}
-                <li>
+                {/* <li>
+                  <Link
+                    to="/store"
+                    onClick={handleNavItemClick}
+                    className="block text-[0.85rem] font-medium tracking-[0.12em] uppercase px-[0.9rem] py-2 no-underline text-black hover:text-primary"
+                  >
+                   Store
+                  </Link>
+                </li> */}
+
+                 <li>
                   <Link
                     to="/contact-us"
                     onClick={handleNavItemClick}
@@ -269,6 +279,7 @@ const NavbarRJ = () => {
                     Contact Us
                   </Link>
                 </li>
+                
               </ul>
             </div>
 

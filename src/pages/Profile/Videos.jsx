@@ -10,7 +10,8 @@ function Post() {
 
   // YouTube URL state (local, static; no API calls)
   const [youtubeInput, setYoutubeInput] = useState(
-    "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    // "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    ""
   );
   const [youtubeEmbedUrl, setYoutubeEmbedUrl] = useState(null);
 

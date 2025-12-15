@@ -4,7 +4,9 @@ import jwtDefaultConfig from './jwtDefaultConfig'
 
 // PRODUCTION GCP Configuration - PORT 8080 add kiya gaya hai
 // axios.defaults.baseURL = 'http://192.168.29.35:8000/'
-axios.defaults.baseURL = 'http://192.168.1.19:8000/'
+axios.defaults.baseURL = 'https://locktrust.xyz/drakeapi'
+// axios.defaults.baseURL = 'http://192.168.29.210:8000/'
+
 
 // axios.defaults.baseURL = 'http://34.71.120.171:8080/'
 
@@ -219,6 +221,20 @@ export default class JwtService {
 
     return axios.post(this.jwtConfig.addLinksToProfileEndpoint, ...args)
   }
+
+// src/endpoints/jwt/jwtService.js
+
+  addLinksToProfile(links) {
+    // payload exactly backend ke hisab se
+    const payload = {
+      links: links
+    };
+
+    console.log("Sending social links payload:", payload);
+
+    return axios.post(this.jwtConfig.addLinksToProfileEndpoint, payload);
+  }
+
 
 
 

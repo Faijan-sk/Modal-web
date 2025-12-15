@@ -259,7 +259,7 @@ function Index({ onSignupSuccess }) {
       SetSubmitButton("Creating...");
       const response = await useJwt.signup(payload);
       console.log("Signup response:", response);
-      alert("Account created successfully!");
+      // alert("Account created successfully!");
 
       // ✅ Signup success → fields reset + errors clear
       setFormData({

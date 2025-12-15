@@ -25,7 +25,7 @@ export default {
 addMediaToProfileEndpoint : '/model/images/videos',
 getProfileInfoEndPoint : '/model/info',
 uploadVideoToProfileEndpoint: "/model/video", 
-addLinksToProfileEndpoint : '/model/social/links'
+addLinksToProfileEndpoint : '/model/social/links',
 
   
 }
