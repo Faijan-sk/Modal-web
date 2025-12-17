@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Magazine from "./../../../src/assets/store/magzin.jpg"; // magazine image
+import Magazine from "./../../../src/assets/store/magzin.jpg";
 
 const testimonials = [
   {
@@ -49,59 +49,88 @@ const TestimonialSlider = () => {
             initial="enter"
             animate="center"
             exit="exit"
-            className="text-center"
+            className="w-full"
           >
-            {/* Quote mark */}
-            <div className="text-5xl font-black mb-6">“</div>
+            {/* IMAGE + TEXT LAYOUT */}
+            {active.type === "image" ? (
+              <div className="grid md:grid-cols-2  items-center">
+                {/* Left Image */}
+                <div className="flex justify-center md:justify-start">
+                  <img
+                    src={active.image}
+                    alt="Magazine Cover"
+                    className="w-40 sm:w-48 shadow-xl"
+                  />
+                </div>
 
-            {/* Image slide */}
-            {active.type === "image" && (
-              <div className="flex justify-center mb-8">
-                <img
-                  src={active.image}
-                  alt="Magazine Cover"
-                  className="w-36 sm:w-44 shadow-xl"
-                />
+                {/* Right Text */}
+                <div className="text-center md:text-left">
+                  <div className="text-5xl font-black mb-6">“</div>
+
+                  <p className="text-2xl sm:text-3xl md:text-4xl font-extrabold leading-snug">
+                    {active.quote.split(" ").map((word, i) => {
+                      const isHighlighted = active.highlight?.some((h) =>
+                        h.includes(word)
+                      );
+                      return (
+                        <span
+                          key={i}
+                          className={isHighlighted ? "text-pink-500 italic" : ""}
+                        >
+                          {word}{" "}
+                        </span>
+                      );
+                    })}
+                  </p>
+
+                  <p className="mt-8 text-sm font-semibold text-black">
+                    ___ {active.author}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              /* TEXT ONLY (CENTERED) */
+              <div className="text-center">
+                <div className="text-5xl font-black mb-6">“</div>
+
+                <p className="text-2xl sm:text-3xl md:text-4xl font-extrabold leading-snug max-w-4xl mx-auto">
+                  {active.quote.split(" ").map((word, i) => {
+                    const isHighlighted = active.highlight?.some((h) =>
+                      h.includes(word)
+                    );
+                    return (
+                      <span
+                        key={i}
+                        className={isHighlighted ? "text-pink-500 italic" : ""}
+                      >
+                        {word}{" "}
+                      </span>
+                    );
+                  })}
+                </p>
+
+                <p className="mt-8 text-sm font-semibold text-black">
+                  ___ {active.author}
+                </p>
               </div>
             )}
-
-            {/* Quote text */}
-            <p className="text-2xl sm:text-3xl md:text-4xl font-extrabold leading-snug max-w-4xl mx-auto">
-              {active.quote.split(" ").map((word, i) => {
-                const isHighlighted = active.highlight?.some((h) =>
-                  active.quote.includes(h) && h.includes(word)
-                );
-                return (
-                  <span
-                    key={i}
-                    className={isHighlighted ? "text-pink-500 italic" : ""}
-                  >
-                    {word}{" "}
-                  </span>
-                );
-              })}
-            </p>
-
-            {/* Author */}
-            <p className="mt-8 text-sm font-semibold text-black">
-              ___ {active.author}
-            </p>
           </motion.div>
         </AnimatePresence>
-
-        {/* Dots */}
-        <div className="flex justify-center gap-3 mt-12">
-          {testimonials.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setIndex(i)}
-              className={`w-3 h-3 rounded-full transition ${
-                i === index ? "bg-black" : "bg-gray-300"
-              }`}
-            />
-          ))}
-        </div>
+         <div className="flex justify-center gap-3 mt-12">
+        {testimonials.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setIndex(i)}
+            className={`w-3 h-3 rounded-full transition ${
+              i === index ? "bg-black" : "bg-gray-300"
+            }`}
+          />
+        ))}
       </div>
+      </div>
+
+      {/* Dots */}
+     
     </section>
   );
 };

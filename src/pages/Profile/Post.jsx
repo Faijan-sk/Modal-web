@@ -6,25 +6,19 @@ function Post() {
   const [visibleCount, setVisibleCount] = useState(9);
   const [loading, setLoading] = useState(false);
 
-  // Hidden file input reference
+  const [isLimitModalOpen, setIsLimitModalOpen] = useState(false); // ✅ NEW
+
   const fileInputRef = useRef(null);
 
   // ==================== FETCH POSTS ====================
   const fetchPosts = async () => {
     try {
-      // ✅ Axios / custom hook call
       const res = await useJwt.getMediaToProfile();
-
-      // 👉 Axios me data yaha hota hai
       const data = res?.data;
-
-      // Data agar array hai to as-is, agar single object hai to array bana do
       const normalized = Array.isArray(data) ? data : data ? [data] : [];
-
       setPosts(normalized);
-      console.log("Fetched posts:", normalized);
     } catch (err) {
-      console.error("Error fetching posts:", err);
+      console.error(err);
     }
   };
 
@@ -32,7 +26,7 @@ function Post() {
     fetchPosts();
   }, []);
 
-  // ==================== HANDLE DIRECT FILE UPLOAD ====================
+  // ==================== FILE UPLOAD ====================
   const handleFileChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -41,21 +35,22 @@ function Post() {
 
     try {
       const formData = new FormData();
-      // 🔴 IMPORTANT: backend key = "photos"
       formData.append("photos", file);
 
-      // ✅ useJwt se API call
       const res = await useJwt.addMediaToProfile(formData);
 
-      // Axios response check
       if (!res || (res.status !== 200 && res.status !== 201)) {
         throw new Error("Upload failed");
       }
 
-      // Upload ke baad list refresh
       await fetchPosts();
     } catch (err) {
-      console.error("Error uploading file:", err);
+      console.error("Upload error:", err);
+
+      // ✅ IMAGE LIMIT ERROR → OPEN MODAL
+      if (err?.response?.data?.detail === "Only 5 images are allowed.") {
+        setIsLimitModalOpen(true);
+      }
     } finally {
       setLoading(false);
     }
@@ -64,7 +59,7 @@ function Post() {
   // ==================== OPEN FILE PICKER ====================
   const openFilePicker = () => {
     if (fileInputRef.current) {
-      fileInputRef.current.value = ""; // reset selection
+      fileInputRef.current.value = "";
       fileInputRef.current.click();
     }
   };
@@ -74,7 +69,7 @@ function Post() {
   };
 
   return (
-    <div className="p-3">
+    <div className="p-3 relative">
       {/* Hidden File Input */}
       <input
         type="file"
@@ -86,20 +81,10 @@ function Post() {
 
       {/* Masonry Grid */}
       <div className="columns-1 sm:columns-2 md:columns-3 gap-6 space-y-6">
-        {/* ========== Posts Display (ALL photos for each post) ========== */}
         {posts.slice(0, visibleCount).map((post, i) => {
-          // post example:
-          // {
-          //   photos: ["http://...1.png", "http://...2.png", ...],
-          //   video: "http://...mp4",
-          //   id: 3,
-          //   user_id: 4
-          // }
-
           if (!Array.isArray(post.photos) || post.photos.length === 0)
             return null;
 
-          // har photo ke liye alag card
           return post.photos.map((imgUrl, idx) => (
             <div
               key={`${post.id ?? i}-${idx}`}
@@ -110,48 +95,81 @@ function Post() {
             </div>
           ));
         })}
-
-        {/* ========== PLUS CARD (DIRECT FILE CHOOSE) ========== */}
-        
       </div>
 
-      {/* View More Button */}
+      {/* View More */}
       {visibleCount < posts.length && (
         <div className="mt-6 flex justify-center">
           <button
             onClick={handleViewMore}
-            className="
-              px-6 py-2.5 rounded-full
-              border border-pink-500
-              text-pink-500 font-semibold text-sm
-              hover:bg-pink-500 hover:text-white
-              transition duration-300 active:scale-95
-              shadow-sm
-            "
+            className="px-6 py-2 rounded-full border border-pink-500
+                       text-pink-500 font-semibold hover:bg-pink-500 hover:text-white"
           >
             View more
           </button>
         </div>
       )}
+
+      {/* ADD POST CARD */}
       <div className="break-inside-avoid rounded-xl overflow-hidden shadow-xl my-5">
-          <button
-            type="button"
-            onClick={openFilePicker}
-            className="w-full h-full min-h-[100px] flex flex-col items-center justify-center
-                       bg-gray-100 hover:bg-gray-200 transition-all duration-300"
-          >
-            {loading ? (
-              <span className="text-gray-600 text-sm">Uploading...</span>
-            ) : (
-              <>
-                <span className="text-5xl font-bold">+</span>
-                <span className="mt-2 text-sm text-gray-600">
-                  Add new post
-                </span>
-              </>
-            )}
-          </button>
+        <button
+          type="button"
+          onClick={openFilePicker}
+          disabled={loading}
+          className="w-full min-h-[120px] flex flex-col items-center justify-center
+                     bg-gray-100 hover:bg-gray-200 transition-all
+                     disabled:opacity-60"
+        >
+          {loading ? (
+            <span className="text-gray-600">Uploading...</span>
+          ) : (
+            <>
+              <span className="text-5xl font-bold">+</span>
+              <span className="mt-2 text-sm text-gray-600">Add new post</span>
+            </>
+          )}
+        </button>
+      </div>
+
+      {/* ==================== LIMIT MODAL ==================== */}
+      {isLimitModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 animate-scaleIn">
+            <h2 className="text-xl font-bold text-gray-800 mb-2">
+              Upload limit reached 🚫
+            </h2>
+
+            <p className="text-gray-600 text-sm mb-4">
+              Your current subscription plan allows only{" "}
+              <span className="font-semibold">5 image uploads</span>.
+              <br />
+              Upgrade your plan to upload more images and unlock premium
+              features.
+            </p>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setIsLimitModalOpen(false)}
+                className="flex-1 px-4 py-2 rounded-lg border border-gray-300
+                           text-gray-700 hover:bg-gray-100"
+              >
+                Maybe later
+              </button>
+
+              <button
+                onClick={() => {
+                  setIsLimitModalOpen(false);
+                  // 👉 future: navigate to /subscription
+                }}
+                className="flex-1 px-4 py-2 rounded-lg bg-pink-500
+                           text-white font-semibold hover:bg-pink-600"
+              >
+                Upgrade plan 🚀
+              </button>
+            </div>
+          </div>
         </div>
+      )}
     </div>
   );
 }
