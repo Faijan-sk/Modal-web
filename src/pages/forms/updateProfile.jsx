@@ -1,5 +1,5 @@
 // src/pages/signUp/BasicInfoForm.jsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import useJwt from "../../endpoints/jwt/useJwt";
 
 function BasicInfoForm({ onSubmitSuccess }) {
@@ -7,7 +7,7 @@ function BasicInfoForm({ onSubmitSuccess }) {
     gender: "",
     current_city: "",
     nationality: "",
-    home_city: "",
+    home_town: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -36,7 +36,7 @@ function BasicInfoForm({ onSubmitSuccess }) {
       "gender",
       "current_city",
       "nationality",
-      "home_city",
+      "home_town",
     ];
 
     const newErrors = {};
@@ -53,19 +53,17 @@ function BasicInfoForm({ onSubmitSuccess }) {
       return;
     }
 
-    // ✅ Backend ko exactly ye body jayegi
     const payload = {
       gender: formData.gender.trim(),
       current_city: formData.current_city.trim(),
       nationality: formData.nationality.trim(),
-      home_city: formData.home_city.trim(),
+      home_town: formData.home_town.trim(),
     };
 
     try {
       setIsSubmitting(true);
       setApiError("");
 
-      // 🔥 yaha pe hook ki tarah call nahi karna, direct service use karna hai
       const response = await useJwt.updateProfile(payload);
       console.log("BASIC INFO API RESPONSE:", response);
 
@@ -85,6 +83,31 @@ function BasicInfoForm({ onSubmitSuccess }) {
       setIsSubmitting(false);
     }
   };
+
+  // 🔥 Autofill user basic detail when component loads
+  useEffect(() => {
+    const fetchBasicDetails = async () => {
+      try {
+        const res = await useJwt.getBasicDetail();
+        console.log("GET BASIC DETAIL RESPONSE:", res);
+
+        if (res?.data?.user) {
+          const userData = res.data.user;
+
+          setFormData({
+            gender: userData.gender || "",
+            current_city: userData.current_city || "",
+            nationality: userData.nationality || "",
+            home_town: userData.home_town || "", // backend key = home_town
+          });
+        }
+      } catch (error) {
+        console.error("Failed to fetch basic detail: ", error);
+      }
+    };
+
+    fetchBasicDetails();
+  }, []);
 
   return (
     <form
@@ -191,14 +214,14 @@ function BasicInfoForm({ onSubmitSuccess }) {
         </label>
         <input
           type="text"
-          name="home_city"
-          value={formData.home_city}
+          name="home_town"
+          value={formData.home_town}
           onChange={handleChange}
           placeholder="Enter City name here"
           className="border border-gray-300 rounded-lg px-3 py-2 w-full bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm"
         />
-        {errors.home_city && (
-          <p className="mt-1 text-xs text-red-500">{errors.home_city}</p>
+        {errors.home_town && (
+          <p className="mt-1 text-xs text-red-500">{errors.home_town}</p>
         )}
       </div>
 

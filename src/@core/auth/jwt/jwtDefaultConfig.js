@@ -14,6 +14,7 @@ export default {
   registerEndpoint: '/auth/register',
   loginEndpoint: '/auth/login',
   updatetProfileEndpoint : '/model/user/update-profile',
+  
   physicalAttributeFormEndpoint: '/model/profile',
   professionalFormEndpoint : '/model/professional',
   ProfileMediaSetEndpoint: 'model/media/upload',

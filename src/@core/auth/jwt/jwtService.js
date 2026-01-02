@@ -181,6 +181,13 @@ export default class JwtService {
     return axios.patch(this.jwtConfig.updatetProfileEndpoint , ...args)
   }
 
+  getBasicDetail(){
+    return axios.get(this.jwtConfig.updatetProfileEndpoint)
+  }
+
+
+
+
   physicalAttributeSet(...args){
     return axios.post(this.jwtConfig.physicalAttributeFormEndpoint, ...args)
   }
