@@ -42,10 +42,12 @@ getPublicModalByuid : '/public/models/details/{uuid}',
 * casting Company 
 */
 completeCastingCompanyProfileEndpoint: '/agency/create',
-getJobsEndpoint : ''
+getJobsEndpoint : '',
 
 
 
+// get Jobs
 
-
+allJobsList:'/public/jobs',
+jobDetailsById : '/agency/jobposting/',
 }
