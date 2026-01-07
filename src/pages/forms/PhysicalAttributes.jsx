@@ -1,5 +1,4 @@
-// src/pages/signUp/PhysicalAttributesForm.jsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import useJwt from "../../endpoints/jwt/useJwt";
 
 function PhysicalAttributesForm({ onSubmitSuccess, gender }) {
@@ -31,7 +30,6 @@ function PhysicalAttributesForm({ onSubmitSuccess, gender }) {
   const isMale = gender?.toLowerCase() === "male";
   const isFemale = gender?.toLowerCase() === "female";
 
-  // generic change handler
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
@@ -40,33 +38,24 @@ function PhysicalAttributesForm({ onSubmitSuccess, gender }) {
       [name]: type === "checkbox" ? checked : value,
     }));
 
-    setErrors((prev) => ({
-      ...prev,
-      [name]: "",
-    }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
     setApiError("");
   };
 
-  // numeric-like fields (height, weight etc)
   const handleNumericLikeChange = (e) => {
     const { name, value } = e.target;
-    // sirf digits, dot, space, /, - allow
     const cleaned = value.replace(/[^0-9.\s/-]/g, "");
     setFormData((prev) => ({
       ...prev,
       [name]: cleaned,
     }));
-    setErrors((prev) => ({
-      ...prev,
-      [name]: "",
-    }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
     setApiError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // ✅ Common required fields (for all genders)
     const requiredFields = [
       "height",
       "weight",
@@ -84,25 +73,16 @@ function PhysicalAttributesForm({ onSubmitSuccess, gender }) {
       "suit_jacket_dress_size",
     ];
 
-    // ✅ Extra required for Male
-    if (isMale) {
-      requiredFields.push("facial_hair");
-    }
-
-    // ✅ Extra required for Female
-    if (isFemale) {
-      requiredFields.push("bust_cup_size");
-    }
+    if (isMale) requiredFields.push("facial_hair");
+    if (isFemale) requiredFields.push("bust_cup_size");
 
     const newErrors = {};
-
     requiredFields.forEach((field) => {
-      if (!formData[field] || formData[field].toString().trim() === "") {
+      if (!formData[field]?.toString().trim()) {
         newErrors[field] = "This field is required.";
       }
     });
 
-    // If tattoos_piercings is true, tattoos_details is required
     if (formData.tattoos_piercings && !formData.tattoos_details.trim()) {
       newErrors.tattoos_details = "Please provide tattoo/piercing details.";
     }
@@ -112,7 +92,6 @@ function PhysicalAttributesForm({ onSubmitSuccess, gender }) {
       return;
     }
 
-    // 🔹 Payload according to API structure
     const payload = {
       height: formData.height.trim(),
       weight: formData.weight.trim(),
@@ -138,19 +117,12 @@ function PhysicalAttributesForm({ onSubmitSuccess, gender }) {
       setIsSubmitting(true);
       setApiError("");
 
-      // ✅ Tumhara service method
       const response = await useJwt.physicalAttributeSet(payload);
-
-      console.log("PHYSICAL ATTRIBUTES API RESPONSE:", response);
 
       if (onSubmitSuccess) {
         onSubmitSuccess(response?.data || payload);
-      } else {
-        console.log("PHYSICAL ATTRIBUTES PAYLOAD:", payload);
-        // alert("Physical attributes form submitted (check console).");
       }
     } catch (error) {
-      console.error("Error while saving physical attributes:", error);
       setApiError(
         error?.response?.data?.message ||
           "Something went wrong while saving physical attributes."
@@ -159,6 +131,44 @@ function PhysicalAttributesForm({ onSubmitSuccess, gender }) {
       setIsSubmitting(false);
     }
   };
+
+  // ✅ PREFILL FORM DATA FROM API
+  useEffect(() => {
+    const fetchFormData = async () => {
+      try {
+        const response = await useJwt.getPhysicalAttribute();
+
+        if (response?.data) {
+          setFormData((prev) => ({
+            ...prev,
+            height: response.data.height || "",
+            weight: response.data.weight || "",
+            chest_bust: response.data.chest_bust || "",
+            waist: response.data.waist || "",
+            hips: response.data.hips || "",
+            shoulder: response.data.shoulder || "",
+            shoe_size: response.data.shoe_size || "",
+            eye_color: response.data.eye_color || "",
+            hair_color: response.data.hair_color || "",
+            complexion: response.data.complexion || "",
+            tattoos_piercings: response.data.tattoos_piercings || false,
+            tattoos_details: response.data.tattoos_details || "",
+            body_type: response.data.body_type || "",
+            suit_jacket_dress_size:
+              response.data.suit_jacket_dress_size || "",
+            facial_hair: response.data.facial_hair || "",
+            bust_cup_size: response.data.bust_cup_size || "",
+            hair_length: response.data.hair_length || "",
+            body_shape: response.data.body_shape || "",
+          }));
+        }
+      } catch (err) {
+        console.error("Error fetching physical attributes:", err);
+      }
+    };
+
+    fetchFormData();
+  }, []);
 
   return (
     <form

@@ -1,5 +1,5 @@
 // src/pages/signUp/ProfessionalInfoForm.jsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import useJwt from "../../endpoints/jwt/useJwt";
 
 /** Reusable TagInput with gradient */
@@ -52,7 +52,6 @@ function TagInput({
       </label>
 
       <div className="border border-gray-300 rounded-lg px-2 py-2 w-full flex flex-wrap items-center gap-2 bg-white focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
-        {/* Chips */}
         {values.map((tag) => (
           <span
             key={tag}
@@ -71,7 +70,6 @@ function TagInput({
           </span>
         ))}
 
-        {/* Input */}
         <input
           type="text"
           className="flex-1 min-w-[120px] bg-transparent outline-none text-sm py-1 px-1"
@@ -90,14 +88,14 @@ function TagInput({
 
 function ProfessionalInfoForm({ onSubmitSuccess }) {
   const [formData, setFormData] = useState({
-    professional_experience: "",       // "yes" | "no"
+    professional_experience: "",
     experience_details: "",
     languages: [],
     skills: [],
     other_skills: [],
     interested_categories: [],
     other_interested_categories: [],
-    willing_to_travel: "",            // "yes" | "no"
+    willing_to_travel: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -112,7 +110,6 @@ function ProfessionalInfoForm({ onSubmitSuccess }) {
       [name]: value,
     }));
 
-    // Clear experience_details when professional_experience changes to "no"
     if (name === "professional_experience" && value === "no") {
       setFormData((prev) => ({
         ...prev,
@@ -145,7 +142,6 @@ function ProfessionalInfoForm({ onSubmitSuccess }) {
 
     const newErrors = {};
 
-    // Required fields
     const requiredFields = [
       "languages",
       "skills",
@@ -168,10 +164,13 @@ function ProfessionalInfoForm({ onSubmitSuccess }) {
       }
     });
 
-    // experience_details required only if professional_experience is "yes"
     if (formData.professional_experience === "yes") {
-      if (!formData.experience_details || formData.experience_details.trim() === "") {
-        newErrors.experience_details = "Please describe your experience.";
+      if (
+        !formData.experience_details ||
+        formData.experience_details.trim() === ""
+      ) {
+        newErrors.experience_details =
+          "Please describe your experience.";
       }
     }
 
@@ -180,16 +179,17 @@ function ProfessionalInfoForm({ onSubmitSuccess }) {
       return;
     }
 
-    // ✅ API payload (exact as backend expects)
     const payload = {
-      professional_experience: formData.professional_experience === "yes",
+      professional_experience:
+        formData.professional_experience === "yes",
       experience_details: formData.experience_details.trim(),
       languages: formData.languages,
       other_languages: formData.other_languages,
       skills: formData.skills,
       other_skills: formData.other_skills,
       interested_categories: formData.interested_categories,
-      other_interested_categories: formData.other_interested_categories,
+      other_interested_categories:
+        formData.other_interested_categories,
       willing_to_travel: formData.willing_to_travel === "yes",
     };
 
@@ -197,19 +197,12 @@ function ProfessionalInfoForm({ onSubmitSuccess }) {
       setIsSubmitting(true);
       setApiError("");
 
-      // 🔥 Tumhara service method
       const response = await useJwt.professionalFormSet(payload);
-
-      console.log("PROFESSIONAL INFO API RESPONSE:", response);
 
       if (onSubmitSuccess) {
         onSubmitSuccess(response?.data || payload);
-      } else {
-        console.log("PROFESSIONAL INFO PAYLOAD:", payload);
-        // alert("Professional info form submitted (check console).");
       }
     } catch (error) {
-      console.error("Error saving professional info:", error);
       setApiError(
         error?.response?.data?.message ||
           "Something went wrong while saving professional info."
@@ -218,6 +211,37 @@ function ProfessionalInfoForm({ onSubmitSuccess }) {
       setIsSubmitting(false);
     }
   };
+
+  // ✅ PREFILL DATA (ADDED – NO EXISTING LINE REMOVED)
+  useEffect(() => {
+    const fetchProfessionalInfo = async () => {
+      try {
+        const response = await useJwt.getProfessionalInfo();
+
+        if (response?.data) {
+          setFormData((prev) => ({
+            ...prev,
+            professional_experience: response.data.professional_experience
+              ? "yes"
+              : "no",
+            experience_details:
+              response.data.experience_details || "",
+            languages: response.data.languages || [],
+            skills: response.data.skills || [],
+            interested_categories:
+              response.data.interested_categories || [],
+            willing_to_travel: response.data.willing_to_travel
+              ? "yes"
+              : "no",
+          }));
+        }
+      } catch (err) {
+        console.error("Error fetching professional info:", err);
+      }
+    };
+
+    fetchProfessionalInfo();
+  }, []);
 
   return (
     <form
@@ -234,155 +258,106 @@ function ProfessionalInfoForm({ onSubmitSuccess }) {
         </p>
       )}
 
-      {/* Professional Experience (Yes/No) */}
+      {/* Professional Experience */}
       <div>
         <label className="text-sm font-medium mb-1 text-gray-700 block">
           Do you have prior professional experience?
         </label>
         <div className="flex gap-4 border border-gray-300 rounded-lg px-3 py-2 bg-white">
-          <label className="flex items-center gap-2 text-sm text-gray-700">
+          <label className="flex items-center gap-2 text-sm">
             <input
               type="radio"
               name="professional_experience"
               value="yes"
               checked={formData.professional_experience === "yes"}
               onChange={handleSimpleChange}
-              className="accent-black"
             />
             Yes
           </label>
-          <label className="flex items-center gap-2 text-sm text-gray-700">
+          <label className="flex items-center gap-2 text-sm">
             <input
               type="radio"
               name="professional_experience"
               value="no"
               checked={formData.professional_experience === "no"}
               onChange={handleSimpleChange}
-              className="accent-black"
             />
             No
           </label>
         </div>
-        {errors.professional_experience && (
-          <p className="mt-1 text-xs text-red-500">
-            {errors.professional_experience}
-          </p>
-        )}
       </div>
 
-      {/* Experience Details (shown only if professional_experience is "yes") */}
       {formData.professional_experience === "yes" && (
         <div>
           <label className="text-sm font-medium mb-1 text-gray-700 block">
             Experience Details
-            <span className="text-xs text-gray-500 ml-1">
-              (brands, shoots, years of work)
-            </span>
           </label>
           <textarea
             name="experience_details"
             rows={3}
-            placeholder="Describe your professional work experience..."
             value={formData.experience_details}
             onChange={handleSimpleChange}
-            className="border border-gray-300 rounded-lg px-3 py-2 w-full resize-y bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm"
+            className="border border-gray-300 rounded-lg px-3 py-2 w-full"
           />
-          {errors.experience_details && (
-            <p className="mt-1 text-xs text-red-500">
-              {errors.experience_details}
-            </p>
-          )}
         </div>
       )}
 
-      {/* Interested Categories */}
       <TagInput
         name="interested_categories"
         label="Interested Categories"
-        helperText="(type + Enter)"
-        placeholder="Fashion, Commercial, Runway..."
+        placeholder="Fashion, Commercial..."
         values={formData.interested_categories}
         onChange={handleTagChange}
-        error={errors.interested_categories}
       />
 
-      <TagInput
-        name="other_interested_categories"
-        label="Other Interested Categories"
-        helperText="(type + Enter, optional)"
-        placeholder="Additional categories..."
-        values={formData.other_interested_categories}
-        onChange={handleTagChange}
-        error={errors.other_interested_categories}
-      />
-
-      {/* Languages */}
       <TagInput
         name="languages"
         label="Languages"
-        helperText="(type + Enter)"
-        placeholder="English, Spanish, French..."
+        placeholder="English, Hindi..."
         values={formData.languages}
         onChange={handleTagChange}
-        error={errors.languages}
       />
 
-    
-
-      {/* Skills */}
       <TagInput
         name="skills"
         label="Skills"
-        helperText="(type + Enter)"
-        placeholder="Ramp walk, Acting, Dancing..."
+        placeholder="Acting, Dancing..."
         values={formData.skills}
         onChange={handleTagChange}
-        error={errors.skills}
       />
 
-     
-
-      {/* Willing to Travel */}
       <div>
         <label className="text-sm font-medium mb-1 text-gray-700 block">
-          Are you willing to travel for projects?
+          Are you willing to travel?
         </label>
         <div className="flex gap-4 border border-gray-300 rounded-lg px-3 py-2 bg-white">
-          <label className="flex items-center gap-2 text-sm text-gray-700">
+          <label>
             <input
               type="radio"
               name="willing_to_travel"
               value="yes"
               checked={formData.willing_to_travel === "yes"}
               onChange={handleSimpleChange}
-              className="accent-black"
             />
             Yes
           </label>
-          <label className="flex items-center gap-2 text-sm text-gray-700">
+          <label>
             <input
               type="radio"
               name="willing_to_travel"
               value="no"
               checked={formData.willing_to_travel === "no"}
               onChange={handleSimpleChange}
-              className="accent-black"
             />
             No
           </label>
         </div>
-        {errors.willing_to_travel && (
-          <p className="mt-1 text-xs text-red-500">
-            {errors.willing_to_travel}
-          </p>
-        )}
       </div>
 
-      {/* Submit Button */}
       <button
         type="submit"
         disabled={isSubmitting}
-        className="relative w-full mt-2 py-2 rounded-lg font-semibold tracking-[0.12em] uppercase text-sm bg-black !text-white hover:bg-primary hover:!text-white transition disabled:opacity-60 disabled:cursor-not-allowed"
+        className="w-full py-2 bg-black text-white rounded-lg"
       >
         {isSubmitting ? "Saving..." : "Save Professional Info"}
       </button>

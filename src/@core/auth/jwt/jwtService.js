@@ -281,5 +281,16 @@ getProgressStatus(uid) {
 }
 
 
+getPhysicalAttribute(){
+  return axios.get(this.jwtConfig.getPhysicalAttributeFormData)
+}
+
+getProfessionalInfo(){
+  return axios.get(this.jwtConfig.getProfessionalInfoFormData)
+}
+
+getMediaFormData(){
+  return axios.get(this.jwtConfig.getMediaFormData)
+}
 
 }

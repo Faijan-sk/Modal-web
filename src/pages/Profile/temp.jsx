@@ -8,6 +8,18 @@ import useJwt from "./../../endpoints/jwt/useJwt";
 import CircularProgress from "@mui/material/CircularProgress";
 import LinkModal from "./../forms/AddLinksForm";
 
+import {
+  ImFacebook2 ,
+  FaTwitter,
+  FaInstagram ,
+  FaTiktok ,
+  FaSnapchat ,
+  FaPinterest ,
+  ImLinkedin ,
+  FaYoutube 
+} from "react-icons/fa";
+
+
 const ProfilePage = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("posts");
@@ -39,11 +51,22 @@ const ProfilePage = () => {
     }
   };
 
+  // LOGOUT
+  const handleLogout = () => {
+    try {
+      localStorage.removeItem("authData");
+    } catch (err) {
+      console.error("Error clearing authData:", err);
+    }
+    window.location.href = "/";
+  };
+
   useEffect(() => {
     async function fetchInfo() {
       try {
         setLoading(true);
         setError(null);
+        debugger
         const response = await useJwt.getModalProfileModalInfo();
         const data = response?.data ?? response;
         setProfile(data);
@@ -265,21 +288,13 @@ const ProfilePage = () => {
 
           <div style={{ marginTop: "1.5rem", display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "1rem", paddingTop: "1.5rem", borderTop: "1px solid #e5e7eb" }}>
             <div style={{ display: "flex", gap: "1.5rem" }}>
-              {/* <div>
-                <div style={{ fontSize: "24px", fontWeight: "bold", color: "#111827" }}>214</div>
-                <div style={{ fontSize: "12px", color: "#9ca3af" }}>Projects done</div>
-              </div>
-              <div>
-                <div style={{ fontSize: "24px", fontWeight: "bold", color: "#111827" }}>4.9/5</div>
-                <div style={{ fontSize: "12px", color: "#9ca3af" }}>Casting rating</div>
-              </div>
-              <div>
-                <div style={{ fontSize: "24px", fontWeight: "bold", color: "#111827" }}>&lt; 24 hrs</div>
-                <div style={{ fontSize: "12px", color: "#9ca3af" }}>Avg. response</div>
-              </div> */}
+            {/* yaha mujhe logo batane hai  */}
+            {/* jo bhi social links aaye  */}
+            
             </div>
 
             <div>
+              
               <button
                 onClick={() => setIsLinkModalOpen(true)}
                 style={{
@@ -354,11 +369,24 @@ const ProfilePage = () => {
             </button>
           </div>
 
+          
+
           <div style={{ padding: "1.5rem" }}>
             {activeTab === "posts" && <Post />}
             {activeTab === "videos" && <Videos />}
             {activeTab === "acchivements" && <Acchivements />}
           </div>
+<p className=" text-center flex justify-center items-center mb-5">
+        <span>Want to logout?</span>
+        <button
+          type="button"
+          className="ml-1 font-bold text-primary underline-offset-2 hover:underline cursor-pointer"
+          onClick={handleLogout}
+        >
+          Log Out
+        </button>
+      </p>
+
         </div>
       </div>
 
@@ -370,6 +398,8 @@ const ProfilePage = () => {
         existingLinks={socialLinks}
       />
     </div>
+
+
   );
 };
 

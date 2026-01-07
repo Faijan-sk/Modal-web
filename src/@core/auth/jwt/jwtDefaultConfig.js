@@ -26,10 +26,11 @@ export default {
 profileCompletionCheckEndpoint: '/model/profile/completion-status/{uuid}',
 addMediaToProfileEndpoint : '/model/images',
 getProfileInfoEndPoint : '/model/info',
-
+getPhysicalAttributeFormData : '/model/profile',
+getProfessionalInfoFormData : '/model/professional',
 uploadVideoToProfileEndpoint: "/model/video", 
 addLinksToProfileEndpoint : '/model/social/links',
-
+getMediaFormData : '/model/media/',
 
 /* 
 * Modal Public Section 
