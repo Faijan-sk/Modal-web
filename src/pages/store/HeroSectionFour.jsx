@@ -7,10 +7,13 @@ function HeroSectionFour() {
       <img
         src={SellingImage}
         alt="advertisement"
-        className="w-full object-cover "
+        className="w-full object-cover"
       />
 
-      <button
+      <a
+        href="https://www.drakegirl.com/store"
+        target="_blank"
+        rel="noopener noreferrer"
         className="btn-drake-outline
           mt-3
           w-[60%]
@@ -21,7 +24,7 @@ function HeroSectionFour() {
         "
       >
         Buy now
-      </button>
+      </a>
     </div>
   );
 }

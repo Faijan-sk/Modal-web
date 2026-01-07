@@ -71,7 +71,7 @@ function BasicInfoForm({ onSubmitSuccess }) {
         onSubmitSuccess(response?.data || payload);
       } else {
         console.log("BASIC INFO PAYLOAD:", payload);
-        alert("Basic info form submitted (check console).");
+        // alert("Basic info form submitted (check console).");
       }
     } catch (error) {
       console.error("Error updating basic info:", error);

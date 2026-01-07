@@ -206,7 +206,7 @@ function ProfessionalInfoForm({ onSubmitSuccess }) {
         onSubmitSuccess(response?.data || payload);
       } else {
         console.log("PROFESSIONAL INFO PAYLOAD:", payload);
-        alert("Professional info form submitted (check console).");
+        // alert("Professional info form submitted (check console).");
       }
     } catch (error) {
       console.error("Error saving professional info:", error);

@@ -112,10 +112,10 @@ export default function CompanyCreateForm() {
 
     try {
       const response = await useJwt.completeCastingProfile(fd);
-      alert("Company Profile Created Successfully!");
+      // alert("Company Profile Created Successfully!");
     } catch (error) {
       console.log(error);
-      alert("Something went wrong!");
+      // alert("Something went wrong!");
     }
   };
 

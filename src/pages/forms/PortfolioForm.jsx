@@ -89,7 +89,7 @@ function MediaUploadForm({ onSubmitSuccess }) {
         onSubmitSuccess(uploadResults);
       } else {
         console.log("All media uploaded (per-file API calls):", uploadResults);
-        alert("All media uploaded successfully (each file via separate API).");
+        // alert("All media uploaded successfully (each file via separate API).");
       }
     } catch (error) {
       console.error("Error while uploading media (per-file):", error);

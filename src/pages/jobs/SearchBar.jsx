@@ -81,7 +81,7 @@ export default function SearchBar({
           ">
             <button
               onClick={() => {
-                alert("Using current location...");
+                // alert("Using current location...");
                 setLocationOpen(false);
               }}
               className="

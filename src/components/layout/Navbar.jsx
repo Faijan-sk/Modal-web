@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import Logo from "./../../assets/logo/Drake-Logo.png";
 import SignUp from "../../../src/pages/signUp/index";
 import Login from "../../../src/pages/login/Login.jsx";
+import useJwt from "./../../endpoints/jwt/useJwt.js"
 
 const NavbarRJ = () => {
 
@@ -14,29 +15,47 @@ const NavbarRJ = () => {
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userType, setUserType] = useState(null);
-
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem("authData");
-
-      if (stored) {
-        setIsLoggedIn(true);
-
-        const parsed = JSON.parse(stored);
-        setUserType(parsed?.user?.user_type);
-      }
-
-    } catch (err) {
-      console.error("Error reading authData:", err);
+  const [userUid , setUserUid] = useState('');
+useEffect(() => {
+  try {
+    // 🔹 authData read
+    const authData = localStorage.getItem("authData");
+    // 🔹 user read
+    const userData = localStorage.getItem("user");
+    console.log("USER DATA FROM LOCAL" , userData)
+           
+    if (authData && userData) {
+      const user = JSON.parse(userData);
+     
+      setUserUid( user.uuid);
+      setIsLoggedIn(true);
+      setUserType(user?.userType); // ✅ CORRECT KEY
+    } else {
       setIsLoggedIn(false);
+      setUserType(null);
     }
-  }, []);
+  } catch (err) {
+    console.error("Error reading user from localStorage:", err);
+    setIsLoggedIn(false);
+    setUserType(null);
+  }
+}, []);
+
 
   const toggleDropdown = (name) => {
     setOpenDropdown(openDropdown === name ? null : name);
   };
 
+
+
+
+
   const handleNavItemClick = () => {
+
+
+
+    
+
     setIsOpen(false);
     setOpenDropdown(null);
     window.scrollTo({
@@ -60,6 +79,7 @@ const NavbarRJ = () => {
     setIsModalOpen(false);
     setShowLogin(false);
   };
+
 
   return (
     <>
@@ -257,7 +277,6 @@ const NavbarRJ = () => {
               </>
             )}
           </div>
-
         </div>
       </div>
     </>

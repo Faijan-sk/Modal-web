@@ -36,7 +36,7 @@ const PUBLIC_KEY_HEX =
   "203db88555e364bf7f8b8a68b7dc24357c9c192ff9ad82002fe63885849ee50e";
 
 function Login({ onLoginSuccess }) {
-  const navigate = useNavigate(); // ✅ NAVIGATE HOOK
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -48,7 +48,6 @@ function Login({ onLoginSuccess }) {
 
   const handleEmailChange = (e) => {
     const value = e.target.value;
-    // same pattern jaisa signup me use kiya hai
     if (/^[A-Za-z0-9@.]*$/.test(value)) {
       setFormData((prev) => ({ ...prev, email: value }));
       setErrors((prev) => ({ ...prev, email: "" }));
@@ -71,12 +70,8 @@ function Login({ onLoginSuccess }) {
     e.preventDefault();
 
     const newErrors = {};
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required.";
-    }
-    if (!formData.password) {
-      newErrors.password = "Password is required.";
-    }
+    if (!formData.email.trim()) newErrors.email = "Email is required.";
+    if (!formData.password) newErrors.password = "Password is required.";
 
     if (Object.keys(newErrors).length > 0) {
       setErrors((prev) => ({ ...prev, ...newErrors }));
@@ -86,62 +81,56 @@ function Login({ onLoginSuccess }) {
     try {
       setSubmitButton("Logging in...");
 
-      // 🔐 AES encrypt password (crypto-js)
       const encryptedPassword = encryptPassword(formData.password);
+      if (!encryptedPassword) throw new Error("Password encryption failed.");
 
-      if (!encryptedPassword) {
-        throw new Error("Password encryption failed.");
-      }
-
-      // 🔥 Service ko call – ab service khud tokens store karegi
       const response = await useJwt.login({
         email: formData.email,
-        password: encryptedPassword, // 👈 encrypted password jaa raha hai
+        password: encryptedPassword,
       });
 
       if (response?.status === 200 || response?.status === 201) {
         const data = response.data;
 
-        // ✅ User object store karna ho to
+        // 🔥 USER NORMALIZATION (IMPORTANT FIX)
         if (data?.user) {
-          localStorage.setItem("user", JSON.stringify(data.user));
+          const normalizedUser = {
+            ...data.user,
+            userType: data.user.userType ?? data.user.user_type, // ✅ FIX
+          };
+
+          localStorage.setItem("user", JSON.stringify(normalizedUser));
         }
 
-        // ✅ Pura auth response store karna ho to (optional)
+        // ✅ Full auth response
         localStorage.setItem("authData", JSON.stringify(data));
 
-        // ✅ Navbar ko batao ke login success ho gaya (modal band + Profile button)
         if (typeof onLoginSuccess === "function") {
           onLoginSuccess();
         }
 
-        // ✅ SUCCESSFUL LOGIN → HOME ya USER PROFILE PAR BEJ DO
         navigate("/");
-      } else {
-        alert("Invalid credentials or something went wrong.");
       }
 
-      // Optional: reset form
       setFormData({ email: "", password: "" });
       setErrors({});
       setSubmitButton("Login");
     } catch (err) {
       console.error("Login error:", err);
-      alert(err?.message || "Something went wrong while encrypting/sending the password.");
       setSubmitButton("Login");
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-2xl space-y-6 mx-auto">
-      {/* TITLE */}
       <h2 className="text-xl font-semibold tracking-[0.12em] uppercase text-center">
         Login
       </h2>
 
-      {/* Email */}
       <div>
-        <label className="text-sm font-medium mb-1 text-gray-700 block">Email</label>
+        <label className="text-sm font-medium mb-1 text-gray-700 block">
+          Email
+        </label>
         <input
           type="text"
           placeholder="Enter email"
@@ -149,12 +138,15 @@ function Login({ onLoginSuccess }) {
           onChange={handleEmailChange}
           className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-primary focus:ring-1 focus:ring-primary outline-none"
         />
-        {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
+        {errors.email && (
+          <p className="mt-1 text-xs text-red-500">{errors.email}</p>
+        )}
       </div>
 
-      {/* Password */}
       <div>
-        <label className="text-sm font-medium mb-1 text-gray-700 block">Password</label>
+        <label className="text-sm font-medium mb-1 text-gray-700 block">
+          Password
+        </label>
         <input
           type="password"
           placeholder="Enter password"
@@ -162,10 +154,11 @@ function Login({ onLoginSuccess }) {
           onChange={handlePasswordChange}
           className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-primary focus:ring-1 focus:ring-primary outline-none"
         />
-        {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password}</p>}
+        {errors.password && (
+          <p className="mt-1 text-xs text-red-500">{errors.password}</p>
+        )}
       </div>
 
-      {/* SUBMIT BUTTON */}
       <button
         type="submit"
         className="relative w-full mt-2 py-2 rounded-lg font-semibold tracking-[0.12em] uppercase text-sm bg-black !text-white hover:bg-primary hover:!text-white transition"

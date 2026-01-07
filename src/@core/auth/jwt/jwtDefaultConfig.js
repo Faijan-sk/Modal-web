@@ -23,7 +23,7 @@ export default {
 /*
 *profile endpoint 
 */
-profileCompletionCheckEndpoint: '/model/user/profile/progress',
+profileCompletionCheckEndpoint: '/model/profile/completion-status/{uuid}',
 addMediaToProfileEndpoint : '/model/images',
 getProfileInfoEndPoint : '/model/info',
 

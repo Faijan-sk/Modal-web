@@ -39,13 +39,13 @@ function Post() {
     if (!file) return;
 
     if (!file.type.startsWith("video/")) {
-      alert("Please select a video file.");
+      // alert("Please select a video file.");
       return;
     }
 
     const MAX_BYTES = 200 * 1024 * 1024;
     if (file.size > MAX_BYTES) {
-      alert("File too large. Maximum allowed size is 200MB.");
+      // alert("File too large. Maximum allowed size is 200MB.");
       return;
     }
 
@@ -109,7 +109,7 @@ function Post() {
   const handlePlayYoutubeInput = () => {
     const embed = getYoutubeEmbedFromUrl(youtubeInput.trim());
     if (!embed) {
-      alert("Please enter a valid YouTube URL.");
+      // alert("Please enter a valid YouTube URL.");
       return;
     }
     setYoutubeEmbedUrl(embed);

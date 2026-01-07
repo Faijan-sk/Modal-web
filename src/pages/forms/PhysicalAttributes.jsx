@@ -147,7 +147,7 @@ function PhysicalAttributesForm({ onSubmitSuccess, gender }) {
         onSubmitSuccess(response?.data || payload);
       } else {
         console.log("PHYSICAL ATTRIBUTES PAYLOAD:", payload);
-        alert("Physical attributes form submitted (check console).");
+        // alert("Physical attributes form submitted (check console).");
       }
     } catch (error) {
       console.error("Error while saving physical attributes:", error);
