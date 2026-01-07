@@ -9,16 +9,28 @@ import CircularProgress from "@mui/material/CircularProgress";
 import LinkModal from "./../forms/AddLinksForm";
 
 import {
-  ImFacebook2 ,
   FaTwitter,
-  FaInstagram ,
-  FaTiktok ,
-  FaSnapchat ,
-  FaPinterest ,
-  ImLinkedin ,
-  FaYoutube 
+  FaInstagram,
+  FaTiktok,
+  FaSnapchat,
+  FaPinterest,
+  FaYoutube
 } from "react-icons/fa";
 
+import { ImFacebook2, ImLinkedin } from "react-icons/im";
+
+// Platform icon mapping
+const PLATFORM_ICONS = {
+  facebook: ImFacebook2,
+  x: FaTwitter,
+  twitter: FaTwitter,
+  instagram: FaInstagram,
+  tiktok: FaTiktok,
+  snapchat: FaSnapchat,
+  pinterest: FaPinterest,
+  linkedin: ImLinkedin,
+  youtube: FaYoutube
+};
 
 const ProfilePage = () => {
   const navigate = useNavigate();
@@ -66,7 +78,6 @@ const ProfilePage = () => {
       try {
         setLoading(true);
         setError(null);
-        debugger
         const response = await useJwt.getModalProfileModalInfo();
         const data = response?.data ?? response;
         setProfile(data);
@@ -83,21 +94,38 @@ const ProfilePage = () => {
   const basic = profile?.basic_info ?? {};
   const physical = profile?.physical_profile ?? {};
   const professional = profile?.professional_info ?? {};
-  const socialLinks = profile?.social_links ?? [];
+  const socialLinksObj = profile?.social_links ?? {};
+
+  // Convert social_links object to array, filter out null/empty/invalid values
+  const socialLinksArray = Object.entries(socialLinksObj)
+    .filter(([platform, url]) => {
+      // Check if URL exists and is not empty
+      if (!url || url.trim() === "") return false;
+      
+      // Remove common placeholder values
+      const normalizedUrl = url.toLowerCase().trim();
+      const invalidValues = ["string", "null", "undefined", "none", "n/a"];
+      
+      if (invalidValues.includes(normalizedUrl)) return false;
+      
+      // Optional: Check if it looks like a valid URL (contains . or starts with http)
+      return normalizedUrl.includes(".") || normalizedUrl.startsWith("http");
+    })
+    .map(([platform, url]) => ({ platform, url }));
 
   const displayName = (basic.first_name || basic.last_name)
     ? `${basic.first_name ?? ""} ${basic.last_name ?? ""}`.trim()
     : "Unnamed User";
 
-  const age = basic.age && Number(basic.age) > 0 
-    ? basic.age 
+  const age = basic.age && Number(basic.age) > 0
+    ? basic.age
     : computeAgeFromDob(basic.dob);
 
   const handleSaveLinks = async (links) => {
     try {
       const response = await useJwt.addLinksToProfile(links);
       console.log("Links saved successfully:", response);
-      
+
       const updated = { ...profile };
       updated.social_links = links.map(link => ({
         platform: link.platform,
@@ -105,7 +133,7 @@ const ProfilePage = () => {
         uuid: link.uuid || `temp-${Date.now()}-${Math.random()}`
       }));
       setProfile(updated);
-      
+
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch (err) {
@@ -115,9 +143,8 @@ const ProfilePage = () => {
   };
 
   const handleEditProfile = () => {
-  navigate("/edit-profile");
-};
-
+    navigate("/edit-profile");
+  };
 
   if (loading) {
     return (
@@ -232,31 +259,11 @@ const ProfilePage = () => {
                   Phone: {basic.country_code ?? ""} {basic.phone ?? "—"}
                 </p>
                 <p style={{ fontSize: "14px", color: "#6b7280", margin: "0.25rem 0" }}>
-                  DOB: {basic.dob ?? "—"} 
+                  DOB: {basic.dob ?? "—"}
                   {age !== null && <> • {age} yr{age > 1 ? "s" : ""}</>}
                 </p>
 
-                {socialLinks?.length > 0 && (
-                  <div style={{ marginTop: "0.5rem" }}>
-                    <span style={{ fontSize: "14px", fontWeight: "500", color: "#374151" }}>Social Links: </span>
-                    {socialLinks.map((link, index) => (
-                      <a
-                        key={index}
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          fontSize: "14px",
-                          color: "#2563eb",
-                          textDecoration: "none",
-                          marginRight: "0.75rem"
-                        }}
-                      >
-                        {link.platform} ↗
-                      </a>
-                    ))}
-                  </div>
-                )}
+                
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: window.innerWidth < 768 ? "1fr 1fr" : "repeat(4, 1fr)", gap: "1rem", fontSize: "14px" }}>
@@ -277,8 +284,8 @@ const ProfilePage = () => {
                 <div>
                   <div style={{ fontWeight: "600", color: "#374151" }}>Category</div>
                   <div style={{ color: "#6b7280" }}>
-                    {professional?.interested_categories?.length 
-                      ? professional.interested_categories.join(" • ") 
+                    {professional?.interested_categories?.length
+                      ? professional.interested_categories.join(" • ")
                       : "—"}
                   </div>
                 </div>
@@ -287,14 +294,37 @@ const ProfilePage = () => {
           </div>
 
           <div style={{ marginTop: "1.5rem", display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "1rem", paddingTop: "1.5rem", borderTop: "1px solid #e5e7eb" }}>
-            <div style={{ display: "flex", gap: "1.5rem" }}>
-            {/* yaha mujhe logo batane hai  */}
-            {/* jo bhi social links aaye  */}
-            
+            <div style={{ display: "flex", gap: "1.5rem", alignItems: "center" }}>
+              {/* Social Media Icons - Only show valid links */}
+              {socialLinksArray.map((link, index) => {
+                const IconComponent = PLATFORM_ICONS[link.platform.toLowerCase()];
+                if (!IconComponent) return null;
+
+                return (
+                  <a
+                    key={index}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={`Visit ${link.platform}`}
+                    style={{
+                      fontSize: "24px",
+                      color: "#374151",
+                      transition: "color 0.2s",
+                      display: "flex",
+                      alignItems: "center",
+                      cursor: "pointer"
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = "#000"}
+                    onMouseLeave={(e) => e.currentTarget.style.color = "#374151"}
+                  >
+                    <IconComponent />
+                  </a>
+                );
+              })}
             </div>
 
             <div>
-              
               <button
                 onClick={() => setIsLinkModalOpen(true)}
                 style={{
@@ -311,7 +341,7 @@ const ProfilePage = () => {
                   gap: "0.5rem"
                 }}
               >
-                {socialLinks && socialLinks.length > 0 ? "Edit Links" : "Add Social Links"}
+                {socialLinksArray && socialLinksArray.length > 0 ? "Edit Links" : "Add Social Links"}
               </button>
             </div>
           </div>
@@ -369,37 +399,32 @@ const ProfilePage = () => {
             </button>
           </div>
 
-          
-
           <div style={{ padding: "1.5rem" }}>
             {activeTab === "posts" && <Post />}
             {activeTab === "videos" && <Videos />}
             {activeTab === "acchivements" && <Acchivements />}
           </div>
-<p className=" text-center flex justify-center items-center mb-5">
-        <span>Want to logout?</span>
-        <button
-          type="button"
-          className="ml-1 font-bold text-primary underline-offset-2 hover:underline cursor-pointer"
-          onClick={handleLogout}
-        >
-          Log Out
-        </button>
-      </p>
-
+          <p className=" text-center flex justify-center items-center mb-5">
+            <span>Want to logout?</span>
+            <button
+              type="button"
+              className="ml-1 font-bold text-primary underline-offset-2 hover:underline cursor-pointer"
+              onClick={handleLogout}
+            >
+              Log Out
+            </button>
+          </p>
         </div>
       </div>
 
-      {/* LinkModal Component - Yeh modal ab render hoga */}
+      {/* LinkModal Component */}
       <LinkModal
         open={isLinkModalOpen}
         onClose={() => setIsLinkModalOpen(false)}
         onSave={handleSaveLinks}
-        existingLinks={socialLinks}
+        existingLinks={socialLinksArray}
       />
     </div>
-
-
   );
 };
 

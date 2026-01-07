@@ -5,7 +5,6 @@ function Post() {
   const [posts, setPosts] = useState([]);
   const [visibleCount, setVisibleCount] = useState(9);
   const [loading, setLoading] = useState(false);
-
   const [isLimitModalOpen, setIsLimitModalOpen] = useState(false);
 
   const fileInputRef = useRef(null);
@@ -25,23 +24,26 @@ function Post() {
     fetchPosts();
   }, []);
 
-  // ==================== FILE UPLOAD ====================
+  // ==================== FILE UPLOAD (MULTIPLE) ====================
   const handleFileChange = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
 
     setLoading(true);
 
     try {
-      const formData = new FormData();
-      formData.append("file", file);
+      for (let file of files) {
+        const formData = new FormData();
+        formData.append("file", file);
 
-      const res = await useJwt.addMediaToProfile(formData);
+        const res = await useJwt.addMediaToProfile(formData);
 
-      if (!res || (res.status !== 200 && res.status !== 201)) {
-        throw new Error("Upload failed");
+        if (!res || (res.status !== 200 && res.status !== 201)) {
+          throw new Error("Upload failed");
+        }
       }
 
+      // ✅ refresh posts AFTER all uploads
       await fetchPosts();
     } catch (err) {
       console.error("Upload error:", err);
@@ -49,7 +51,7 @@ function Post() {
       const errorMsg = err?.response?.data?.detail;
       const statusCode = err?.response?.status;
 
-      // ✅ IMAGE LIMIT OR SUBSCRIPTION EXPIRED
+      // ✅ IMAGE LIMIT / SUBSCRIPTION ISSUE
       if (
         errorMsg === "Only 5 images are allowed." ||
         errorMsg === "Subscribe to add more images" ||
@@ -76,29 +78,30 @@ function Post() {
 
   return (
     <div className="p-3 relative">
-      {/* Hidden File Input */}
+      {/* ==================== HIDDEN FILE INPUT ==================== */}
       <input
         type="file"
         accept="image/*"
+        multiple
         ref={fileInputRef}
         className="hidden"
         onChange={handleFileChange}
       />
 
-      {/* Masonry Grid */}
+      {/* ==================== MASONRY GRID ==================== */}
       <div className="columns-1 sm:columns-2 md:columns-3 gap-6 space-y-6">
         {posts.slice(0, visibleCount).map((img, i) => (
           <div
             key={img.index ?? i}
             className="break-inside-avoid rounded-xl overflow-hidden shadow-xl
-                         hover:-rotate-1 hover:scale-[1.04] transition-all duration-300"
+                       hover:-rotate-1 hover:scale-[1.04] transition-all duration-300"
           >
             <img src={img.url} alt="" className="w-full" />
           </div>
         ))}
       </div>
 
-      {/* View More */}
+      {/* ==================== VIEW MORE ==================== */}
       {visibleCount < posts.length && (
         <div className="mt-6 flex justify-center">
           <button
@@ -111,7 +114,7 @@ function Post() {
         </div>
       )}
 
-      {/* ADD POST CARD */}
+      {/* ==================== ADD POST CARD ==================== */}
       <div className="break-inside-avoid rounded-xl overflow-hidden shadow-xl my-5">
         <button
           type="button"
@@ -126,7 +129,9 @@ function Post() {
           ) : (
             <>
               <span className="text-5xl font-bold">+</span>
-              <span className="mt-2 text-sm text-gray-600">Add new post</span>
+              <span className="mt-2 text-sm text-gray-600">
+                Add new post (multiple images allowed)
+              </span>
             </>
           )}
         </button>

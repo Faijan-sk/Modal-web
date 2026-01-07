@@ -293,4 +293,10 @@ getMediaFormData(){
   return axios.get(this.jwtConfig.getMediaFormData)
 }
 
+getAllSocialLinks(){
+
+  return axios.get(this.jwtConfig.addLinksToProfileEndpoint)
+}
+
+
 }
