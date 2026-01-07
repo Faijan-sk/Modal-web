@@ -92,8 +92,9 @@ const ProfilePage = () => {
   };
 
   const handleEditProfile = () => {
-    navigate("/user_profile");
-  };
+  navigate("/edit-profile");
+};
+
 
   if (loading) {
     return (

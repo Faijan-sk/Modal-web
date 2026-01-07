@@ -17,7 +17,6 @@ function UserProfile() {
 
   // ✅ yaha gender store karenge (step1 se)
   const [gender, setGender] = useState("");
-const [socialLinks, setSocialLinks] = useState([]);
 
   const navigate = useNavigate();
 
@@ -54,7 +53,7 @@ const [socialLinks, setSocialLinks] = useState([]);
   const handlePortfolioSuccess = (data) => {
     console.log("Portfolio / Media Submitted:", data);
     setProgress(100);
-    navigate("/personal-profile");
+    navigate("/personal-Profile");
   };
 
   // LOGOUT

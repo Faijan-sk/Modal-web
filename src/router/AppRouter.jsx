@@ -12,6 +12,7 @@
   import Store from "../pages/store/index"
   import JobsPage from "../pages/jobs/index"
   import CastingCompany from "./../pages/Profile/CompanyProfile"
+  import EditProfile from "./../pages/Profile/EditProfile"
 
   const NotFound = () => <div>404 - Page not found</div>
 
@@ -36,7 +37,7 @@
             <Route path='/store' element={<Store />} />
             <Route path='/jobs' element={<JobsPage />} />
             <Route path='/company_profile' element={<CastingCompany />} />
-
+            <Route path='/edit-profile' element={<EditProfile />} />
           
             <Route path="*" element={<NotFound />} />
           </Routes>
