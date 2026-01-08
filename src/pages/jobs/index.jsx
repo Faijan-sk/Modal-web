@@ -13,9 +13,9 @@ function Index() {
   const [jobsData, setJobsData] = useState([]);
   const fetchJobs = async () => {
     try {
+    
       const res = await useJwt.allJobsList();
-      console.clear();
-      console.log("All Jobs List:", res?.data);
+      // console.log("All Jobs List:", res?.data);
       setJobsData(res?.data || []);
     } catch (error) {
       console.log(error);
