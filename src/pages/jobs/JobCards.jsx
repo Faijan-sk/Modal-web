@@ -1,6 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
+import BlankModal from "./Model";
 
 const JobCard = ({ jobsData = [] }) => {
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedJobUuid, setSelectedJobUuid] = useState(null);
+
+  console.log(jobsData)
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-4">
       {jobsData.map((job, index) => {
@@ -29,9 +34,7 @@ const JobCard = ({ jobsData = [] }) => {
             className="bg-white rounded-[22px] shadow-[0px_12px_30px_rgba(0,0,0,0.08)] font-inter
                        h-[460px] flex flex-col overflow-hidden"
           >
-            {/* CONTENT */}
             <div className="p-[22px] flex-1 flex flex-col">
-              {/* Header */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-[10px] min-w-0">
                   {logo ? (
@@ -63,22 +66,18 @@ const JobCard = ({ jobsData = [] }) => {
                 </button>
               </div>
 
-              {/* Posted */}
               <p className="text-[11px] text-[#888] mt-[10px]">
                 Posted {postedText}
               </p>
 
-              {/* Title */}
               <h2 className="text-[20px] font-extrabold leading-[1.2] mt-[10px] mb-[6px] line-clamp-2">
                 {job_role}
               </h2>
 
-              {/* Description */}
               <p className="text-[13px] text-[#555] leading-[1.5] line-clamp-3">
                 {description}
               </p>
 
-              {/* Tags */}
               <div className="flex flex-wrap gap-[8px] mt-[12px]">
                 {tags.slice(0, 2).map((tag, i) => (
                   <span
@@ -90,13 +89,10 @@ const JobCard = ({ jobsData = [] }) => {
                 ))}
               </div>
 
-              {/* Spacer pushes footer down */}
               <div className="flex-1" />
 
-              {/* Divider */}
-              <div className="border-t border-[#eee] my-[14px]" />
+              <div className="border-t border-[#eee] my-[3px]" />
 
-              {/* Footer */}
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-[16px] font-bold">{rateText}</div>
@@ -107,17 +103,30 @@ const JobCard = ({ jobsData = [] }) => {
                 </div>
 
                 <button
-  className="btn-drake-outline h-[34px] px-2 text-[9px]
-             whitespace-nowrap no-underline
-             flex items-center justify-center"
->
-  Detail
-</button>
+                  onClick={() => {
+                    setSelectedJobUuid(job.uuid);
+                    setOpenModal(true);
+                  }}
+                  className="btn-drake-outline h-[34px] px-2 text-[9px]
+                             whitespace-nowrap no-underline
+                             flex items-center justify-center"
+                >
+                  Detail
+                </button>
               </div>
             </div>
           </div>
         );
       })}
+
+      <BlankModal
+        isOpen={openModal}
+        jobUuid={selectedJobUuid}
+        onClose={() => {
+          setOpenModal(false);
+          setSelectedJobUuid(null);
+        }}
+      />
     </div>
   );
 };
