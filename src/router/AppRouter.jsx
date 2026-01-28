@@ -19,7 +19,7 @@
 
   const AppRouter = () => {
     return (
-      <BrowserRouter basename='/drakeonline'>
+      <BrowserRouter>
         {/* 🔹 Top: Navbar (fixed) */}
         <NavbarRJ />
 
