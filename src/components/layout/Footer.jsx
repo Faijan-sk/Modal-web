@@ -8,7 +8,6 @@ import insta3 from "../../assets/her-section-one/footer_three.webp";
 import insta4 from "../../assets/her-section-one/footer_five.webp";
 import insta5 from "../../assets/her-section-one/footer_six.webp";
 
-
 // Pink round logo
 import drakeLogo from "../../assets/logo/Drake-Logo.png";
 
@@ -96,26 +95,57 @@ const Footer = () => {
 
       {/* ========== BOTTOM NAV + COPYRIGHT ========== */}
       <section className="border-t border-neutral-800">
-        <div className="max-w-6xl mx-auto px-6 py-6 text-[11px]">
-          {/* nav links */}
-          <nav className="flex flex-wrap gap-6 mb-3 tracking-[0.25em] uppercase">
-            <a href="#" className="hover:text-primary">
+        <div className="max-w-6xl mx-auto px-6 py-6 text-[11px] text-primary">
+          {/* nav links with glow effect on hover */}
+          <nav className="flex flex-wrap gap-6 mb-3 tracking-[0.25em] uppercase text-primary">
+            <a 
+              href="/" 
+              className="text-primary transition-all duration-300 hover:drop-shadow-[0_0_8px_rgb(255_105_180)]"
+            >
               Home
             </a>
-            <a href="#" className="hover:text-primary">
+            <a 
+              href="/modals" 
+              className="text-primary transition-all duration-300 hover:drop-shadow-[0_0_8px_rgb(255_105_180)]"
+            >
               Models
             </a>
-            <a href="#" className="hover:text-primary">
-              Services
+            <a 
+              href="/about-us" 
+              className="text-primary transition-all duration-300 hover:drop-shadow-[0_0_8px_rgb(255_105_180)]"
+            >
+              About Us
             </a>
-            <a href="#" className="hover:text-primary">
+            <a 
+              href="/store" 
+              className="text-primary transition-all duration-300 hover:drop-shadow-[0_0_8px_rgb(255_105_180)]"
+            >
               Store
             </a>
-            <a href="#" className="hover:text-primary">
-              Blog
+            <a 
+              href="/terms-condition" 
+              className="text-primary transition-all duration-300 hover:drop-shadow-[0_0_8px_rgb(255_105_180)]"
+            >
+              Terms & Condition
             </a>
-            <a href="#" className="hover:text-primary">
-              Contacts
+            <a 
+              href="/privacy-policy" 
+              className="text-primary transition-all duration-300 hover:drop-shadow-[0_0_8px_rgb(255_105_180)]"
+            >
+              Privacy Policy
+            </a>
+
+            {/* <a 
+              href="/jobs" 
+              className="text-primary transition-all duration-300 hover:drop-shadow-[0_0_8px_rgb(255_105_180)]"
+            >
+              Jobs
+            </a> */}
+            <a 
+              href="/contact-us" 
+              className="text-primary transition-all duration-300 hover:drop-shadow-[0_0_8px_rgb(255_105_180)]"
+            >
+              Contact Us
             </a>
           </nav>
 

@@ -39,7 +39,7 @@ a:link,
 a:visited,
 a:active {
   font-weight: 500;
-  color: #000000;
+  /* color: #000000; */
   text-decoration: none;
 }
 
