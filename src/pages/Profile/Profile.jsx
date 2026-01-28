@@ -2,9 +2,32 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import useJwt from "./../../endpoints/jwt/useJwt";
+import ModelDetailModal from "./ProfileDetailModal"
+import {
+  FaTwitter,
+  FaInstagram,
+  FaTiktok,
+  FaSnapchat,
+  FaPinterest,
+  FaYoutube
+} from "react-icons/fa";
+
+import { ImFacebook2, ImLinkedin } from "react-icons/im";
 
 const FALLBACK_IMAGE =
   "https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=800";
+
+// Social Icons Mapping
+const socialIconsMap = {
+  x: <FaTwitter />,
+  instagram: <FaInstagram />,
+  tiktok: <FaTiktok />,
+  snapchat: <FaSnapchat />,
+  pinterest: <FaPinterest />,
+  youtube: <FaYoutube />,
+  facebook: <ImFacebook2 />,
+  linkedin: <ImLinkedin />,
+};
 
 const ModelPortfolioPage = () => {
   const { state } = useLocation();
@@ -46,7 +69,7 @@ const ModelPortfolioPage = () => {
 
   if (!modelData) return null;
 
-  const { basic_info, profile, professional, media_gallery } = modelData;
+  const { basic_info, profile, professional, media_gallery, social_links } = modelData;
 
   const images = media_gallery?.images || [];
   const totalPages = Math.ceil(images.length / pageSize);
@@ -138,6 +161,26 @@ const ModelPortfolioPage = () => {
                           Profile Detail
                         </button>
                       </dd>
+                    </div>
+                    
+                    {/* Social Media Icons Section */}
+                    <div className="flex flex-wrap gap-4 mt-8 pt-4 border-t border-gray-200">
+                      {social_links && Object.entries(social_links).map(([key, value]) => {
+                        if (value && socialIconsMap[key]) {
+                          return (
+                            <a
+                              key={key}
+                              href={value}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-lg text-gray-600 hover:text-black transition-colors"
+                            >
+                              {socialIconsMap[key]}
+                            </a>
+                          );
+                        }
+                        return null;
+                      })}
                     </div>
                   </dl>
                 </div>
@@ -247,43 +290,7 @@ const ModelPortfolioPage = () => {
         }`}
         onClick={() => setIsProfileModalOpen(false)}
       >
-        <div
-          className={`bg-white rounded-xl shadow-lg px-8 py-6 w-full max-w-[720px] max-h-[90vh] overflow-y-auto transform transition-transform duration-300 ${
-            isProfileModalOpen
-              ? "scale-100 translate-y-0"
-              : "scale-95 -translate-y-2"
-          }`}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="flex justify-end">
-            <button
-              className="text-gray-500 hover:text-black text-xl leading-none"
-              onClick={() => setIsProfileModalOpen(false)}
-            >
-              ×
-            </button>
-          </div>
-
-          <div className="mt-2">
-            <h3 className="text-xl font-light italic mb-4">
-              Public Profile – {basic_info?.full_name}
-            </h3>
-
-            <p className="text-sm">
-              <b>Experience:</b> {professional?.experience_details}
-            </p>
-            <p className="text-sm">
-              <b>Skills:</b> {professional?.skills?.join(", ")}
-            </p>
-            <p className="text-sm">
-              <b>Languages:</b> {professional?.languages?.join(", ")}
-            </p>
-            <p className="text-sm">
-              <b>Categories:</b>{" "}
-              {professional?.interested_categories?.join(", ")}
-            </p>
-          </div>
-        </div>
+        <ModelDetailModal modaldata={modelData} />
       </div>
 
       {/* Scroll to top */}

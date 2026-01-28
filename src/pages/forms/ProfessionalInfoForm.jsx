@@ -313,7 +313,7 @@ function ProfessionalInfoForm({ onSubmitSuccess }) {
       <TagInput
         name="languages"
         label="Languages"
-        placeholder="English, Hindi..."
+        placeholder="English, Spanish..."
         values={formData.languages}
         onChange={handleTagChange}
       />

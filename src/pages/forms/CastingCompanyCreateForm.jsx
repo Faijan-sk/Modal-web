@@ -110,13 +110,13 @@ export default function CompanyCreateForm() {
       fd.append("logo", selectedLogo);
     }
 
-    try {
-      const response = await useJwt.completeCastingProfile(fd);
-      // alert("Company Profile Created Successfully!");
-    } catch (error) {
-      console.log(error);
-      // alert("Something went wrong!");
-    }
+    // try {
+    //   const response = await useJwt.completeCastingProfile(fd);
+    //   // alert("Company Profile Created Successfully!");
+    // } catch (error) {
+    //   console.log(error);
+    //   // alert("Something went wrong!");
+    // }
   };
 
   return (
@@ -158,6 +158,7 @@ export default function CompanyCreateForm() {
         />
       </div>
 
+
       {/* Phone + Website */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
@@ -187,6 +188,7 @@ export default function CompanyCreateForm() {
         </div>
       </div>
 
+
       {/* Address */}
       <div>
         <label className="text-sm font-medium mb-1 block">Address</label>
@@ -199,8 +201,9 @@ export default function CompanyCreateForm() {
         ></textarea>
       </div>
 
+
       {/* Company Logo */}
-      <div>
+      {/* <div>
         <label className="text-sm font-medium mb-1 block">Company Logo</label>
         <input
           type="file"
@@ -208,7 +211,8 @@ export default function CompanyCreateForm() {
           onChange={(e) => setSelectedLogo(e.target.files[0])}
           className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-primary focus:ring-1 focus:ring-primary outline-none"
         />
-      </div>
+      </div> */}
+
 
       {/* Tagline */}
       <div>
@@ -222,8 +226,9 @@ export default function CompanyCreateForm() {
         />
       </div>
 
+
       {/* About */}
-      <div>
+      {/* <div>
         <label className="text-sm font-medium mb-1 block">About Company</label>
         <textarea
           rows={3}
@@ -232,10 +237,10 @@ export default function CompanyCreateForm() {
           onChange={(e) => handleChange("about", e.target.value)}
           className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-primary focus:ring-1 focus:ring-primary outline-none"
         ></textarea>
-      </div>
+      </div> */}
 
       {/* Services */}
-      <div>
+      {/* <div>
         <label className="text-sm font-medium mb-2 block">
           Company Services
         </label>
@@ -258,10 +263,10 @@ export default function CompanyCreateForm() {
         >
           + Add More Service
         </button>
-      </div>
+      </div> */}
 
       {/* SOCIAL LINKS */}
-      <div className="space-y-2">
+      {/* <div className="space-y-2">
         <label className="text-sm font-medium mb-2 block">
           Social Media Links
         </label>
@@ -312,7 +317,7 @@ export default function CompanyCreateForm() {
         className="relative w-full mt-2 py-2 rounded-lg font-semibold tracking-[0.12em] uppercase text-sm bg-black !text-white hover:bg-primary hover:!text-white transition"
       >
         Create Company
-      </button>
+      </button> */}
 
       <p className=" text-center flex justify-center items-center mb-10">
         <span>Want to logout?</span>
@@ -327,3 +332,17 @@ export default function CompanyCreateForm() {
     </form>
   );
 }
+// import React from 'react'
+
+// function CastingCompanyCreateForm() {
+//   return (
+//     <div>
+//       <p className='mt-20 mb-20 text-2xl text-center'>
+//         Update Profile page
+//       </p>
+//     </div>
+
+//   )
+// }
+
+// export default CastingCompanyCreateForm

@@ -12,10 +12,10 @@ const NavbarRJ = () => {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
-
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userType, setUserType] = useState(null);
   const [userUid , setUserUid] = useState('');
+
 useEffect(() => {
   try {
     // 🔹 authData read
@@ -29,7 +29,8 @@ useEffect(() => {
      
       setUserUid( user.uuid);
       setIsLoggedIn(true);
-      setUserType(user?.userType); // ✅ CORRECT KEY
+      setUserType(user?.userType);
+       // ✅ CORRECT KEY
     } else {
       setIsLoggedIn(false);
       setUserType(null);
@@ -51,11 +52,6 @@ useEffect(() => {
 
 
   const handleNavItemClick = () => {
-
-
-
-    
-
     setIsOpen(false);
     setOpenDropdown(null);
     window.scrollTo({
@@ -63,6 +59,12 @@ useEffect(() => {
       behavior: "smooth",
     });
   };
+
+  // const handleCastingJobS = () => {
+
+    
+
+  // }
 
   const handleLoginSuccess = () => {
     setIsLoggedIn(true);
@@ -146,7 +148,7 @@ useEffect(() => {
                   </Link>
                 </li>
 
-                <li>
+                <li>  
                   <Link
                     to="/modals"
                     onClick={handleNavItemClick}
@@ -156,7 +158,16 @@ useEffect(() => {
                   </Link>
                 </li>
 
-                <li>
+
+{userType  == 2 ? <li>
+                  <Link
+                    to="/casting-job"
+                    onClick={handleNavItemClick}
+                    className="block text-[0.85rem] font-medium tracking-[0.12em] uppercase px-[0.9rem] py-2 no-underline text-black hover:text-primary"
+                  >
+                    Jobs for Company
+                  </Link>
+                </li> : <li>
                   <Link
                     to="/jobs"
                     onClick={handleNavItemClick}
@@ -164,7 +175,8 @@ useEffect(() => {
                   >
                     Jobs
                   </Link>
-                </li>
+                </li> }
+                
 
                 <li>
                   <Link

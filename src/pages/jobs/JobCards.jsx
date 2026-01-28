@@ -3,9 +3,10 @@ import BlankModal from "./Model";
 
 const JobCard = ({ jobsData = [] }) => {
   const [openModal, setOpenModal] = useState(false);
-  const [selectedJobUuid, setSelectedJobUuid] = useState(null);
+  const [selectedJob, setSelectedJob] = useState(null);
 
-  console.log(jobsData)
+  console.log(jobsData);
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-4">
       {jobsData.map((job, index) => {
@@ -104,7 +105,7 @@ const JobCard = ({ jobsData = [] }) => {
 
                 <button
                   onClick={() => {
-                    setSelectedJobUuid(job.uuid);
+                    setSelectedJob(job);   // ✅ full object
                     setOpenModal(true);
                   }}
                   className="btn-drake-outline h-[34px] px-2 text-[9px]
@@ -121,10 +122,10 @@ const JobCard = ({ jobsData = [] }) => {
 
       <BlankModal
         isOpen={openModal}
-        jobUuid={selectedJobUuid}
+        job={selectedJob}
         onClose={() => {
           setOpenModal(false);
-          setSelectedJobUuid(null);
+          setSelectedJob(null);
         }}
       />
     </div>

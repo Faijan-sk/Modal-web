@@ -5,7 +5,7 @@ import jwtDefaultConfig from './jwtDefaultConfig'
 // PRODUCTION GCP Configuration - PORT 8080 add kiya gaya hai
 // axios.defaults.baseURL = 'http://192.168.29.35:8000/'
 // axios.defaults.baseURL = 'https://locktrust.xyz/drakeapi'
-axios.defaults.baseURL = 'http://192.168.1.23:8000'
+axios.defaults.baseURL = 'http://192.168.1.16:8005'
 
 
 // axios.defaults.baseURL = 'http://34.71.120.171:8080/'
@@ -296,6 +296,9 @@ getMediaFormData(){
 getAllSocialLinks(){
 
   return axios.get(this.jwtConfig.addLinksToProfileEndpoint)
+}
+applyjob(args){
+  return axios.post(this.jwtConfig.jobApplyEndpoint, args)
 }
 
 

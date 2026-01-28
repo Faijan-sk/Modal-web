@@ -51,4 +51,5 @@ getJobsEndpoint : '',
 
 allJobsList:'/public/jobs',
 jobDetailsById : '/agency/jobposting/',
+jobApplyEndpoint : '/applications/'
 }
