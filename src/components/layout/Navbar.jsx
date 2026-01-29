@@ -5,6 +5,7 @@ import Logo from "./../../assets/logo/Drake-Logo.png";
 import SignUp from "../../../src/pages/signUp/index";
 import Login from "../../../src/pages/login/Login.jsx";
 import useJwt from "./../../endpoints/jwt/useJwt.js"
+import { useAuth } from "../../context/AuthContext.jsx";
 
 const NavbarRJ = () => {
 
@@ -15,9 +16,51 @@ const NavbarRJ = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userType, setUserType] = useState(null);
   const [userUid , setUserUid] = useState('');
+  const [castingProfile, setCastingProfile] = useState(false);
+
+
+  const {isAuthenticated,isProfileComplite,user,logout}=useAuth()
+  
+
+  const isShowProfileButton=user?user.user_type==2 && isProfileComplite:false
+  const isModal = user?user.user_type==1 && isAuthenticated :true
+
+
+// useEffect(() => {
+//  (()=>{ try {
+
+//     // 🔹 authData read
+//     const authData = localStorage.getItem("authData");
+//     // 🔹 user read
+//     const userData = localStorage.getItem("user");
+//     console.log("USER DATA FROM LOCAL" , userData)
+           
+//     if (authData && userData) {
+//       const user = JSON.parse(userData);
+     
+//       setUserUid( user.uuid);
+//       setIsLoggedIn(true);
+//       setUserType(user?.userType);
+     
+//       setCastingProfile(user?.update_profile)
+    
+//     } else {
+//       setIsLoggedIn(false);
+//       setUserType(null);
+//     }
+//   } catch (err) {
+//     console.error("Error reading user from localStorage:", err);
+//     setIsLoggedIn(false);
+//     setUserType(null);
+//   }})()
+// }, []);
+
 
 useEffect(() => {
-  try {
+
+  if(!isAuthenticated)return
+ (()=>{ try {
+
     // 🔹 authData read
     const authData = localStorage.getItem("authData");
     // 🔹 user read
@@ -28,9 +71,11 @@ useEffect(() => {
       const user = JSON.parse(userData);
      
       setUserUid( user.uuid);
-      setIsLoggedIn(true);
+     
       setUserType(user?.userType);
-       // ✅ CORRECT KEY
+     
+     
+    
     } else {
       setIsLoggedIn(false);
       setUserType(null);
@@ -39,8 +84,12 @@ useEffect(() => {
     console.error("Error reading user from localStorage:", err);
     setIsLoggedIn(false);
     setUserType(null);
-  }
-}, []);
+  }})()
+}, [isAuthenticated,user]);
+
+
+
+
 
 
   const toggleDropdown = (name) => {
@@ -65,6 +114,12 @@ useEffect(() => {
     
 
   // }
+
+  const handleLogout = () => {
+      logout()
+
+    window.location.href = "/";
+  };
 
   const handleLoginSuccess = () => {
     setIsLoggedIn(true);
@@ -159,7 +214,7 @@ useEffect(() => {
                 </li>
 
 
-{userType  == 2 ? <li>
+{!isModal ? <li>
                   <Link
                     to="/casting-job"
                     onClick={handleNavItemClick}
@@ -201,14 +256,48 @@ useEffect(() => {
               </ul>
             </div>
 
-            {isLoggedIn ? (
-              <Link
+            {isAuthenticated ? (<>
+
+
+{ !isModal ?  ( <></>) :
+              (user.user_type==1?    <Link
+                // to={userType === 1 ? "/user_profile" : "/company_profile"}
+                to="/user_profile"
+                onClick={handleNavItemClick}
+                className="btn-drake-outline mt-3 lg:mt-0 no-underline flex items-center justify-center"
+              >
+                Profile
+              </Link> : null )
+            }
+              
+              {/* <Link
                 to={userType === 1 ? "/user_profile" : "/company_profile"}
                 onClick={handleNavItemClick}
                 className="btn-drake-outline mt-3 lg:mt-0 no-underline flex items-center justify-center"
               >
                 Profile
-              </Link>
+              </Link> */}
+
+
+{isShowProfileButton  ? (
+
+    <Link
+      onClick={handleLogout}
+      className="btn-drake-outline mt-3 lg:mt-0 no-underline flex items-center justify-center"
+    >
+      Log out
+    </Link>
+  ) : (
+ user.user_type==2?   <Link
+      to="/company_profile"
+      onClick={handleNavItemClick}
+      className="btn-drake-outline mt-3 lg:mt-0 no-underline flex items-center justify-center"
+    >
+      Profile
+    </Link>:null
+  )
+}
+     </>
             ) : (
               <button
                 className="btn-drake-outline mt-3 lg:mt-0"

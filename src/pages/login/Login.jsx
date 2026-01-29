@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useJwt from "../../endpoints/jwt/useJwt";
 import CryptoJS from "crypto-js";
+import { useAuth } from "../../context/AuthContext";
 
 // AES config (same as signup)
 const SECRET_KEY = "12345678901234567890123456789012"; // 32 chars
@@ -36,6 +37,9 @@ const PUBLIC_KEY_HEX =
   "203db88555e364bf7f8b8a68b7dc24357c9c192ff9ad82002fe63885849ee50e";
 
 function Login({ onLoginSuccess }) {
+
+const {login,handleProfileUpload}=useAuth()
+
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -99,11 +103,16 @@ function Login({ onLoginSuccess }) {
             userType: data.user.userType ?? data.user.user_type, // ✅ FIX
           };
 
-          localStorage.setItem("user", JSON.stringify(normalizedUser));
+          login(normalizedUser)
+          handleProfileUpload(normalizedUser.update_profile)
+
+          // update_profile
+
+          // localStorage.setItem("user", JSON.stringify(normalizedUser));
         }
 
         // ✅ Full auth response
-        localStorage.setItem("authData", JSON.stringify(data));
+        // localStorage.setItem("authData", JSON.stringify(data));
 
         if (typeof onLoginSuccess === "function") {
           onLoginSuccess();

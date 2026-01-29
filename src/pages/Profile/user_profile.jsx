@@ -8,13 +8,14 @@ import PhysicalAttributesForm from "./../forms/PhysicalAttributes";
 import MediaUploadForm from "./../forms/PortfolioForm";
 import UpdateProfile from "./../forms/updateProfile";
 import useJwt from "../../../src/endpoints/jwt/useJwt";
+import { useAuth } from "../../context/AuthContext";
 
 function UserProfile() {
   // Start from Step 1
   const [progress, setProgress] = useState(0);
   const [currentStep, setCurrentStep] = useState(1);
   const [user, setUser] = useState(null);
-
+  const {logout}=useAuth()
   // ✅ yaha gender store karenge (step1 se)
   const [gender, setGender] = useState("");
 
@@ -58,11 +59,7 @@ function UserProfile() {
 
   // LOGOUT
   const handleLogout = () => {
-    try {
-      localStorage.removeItem("authData");
-    } catch (err) {
-      console.error("Error clearing authData:", err);
-    }
+   logout()
     window.location.href = "/";
   };
 
@@ -74,10 +71,10 @@ function UserProfile() {
       try {
         const storedUser = localStorage.getItem("user");
 
-        if (!storedUser) {
-          navigate("/login");
-          return;
-        }
+        // if (!storedUser) {
+        //   navigate("/login");
+        //   return;
+        // }
 
         const parsedUser = JSON.parse(storedUser);
         setUser(parsedUser);
@@ -130,7 +127,7 @@ function UserProfile() {
 
       } catch (error) {
         console.error("Profile status error:", error);
-        navigate("/login");
+        // navigate("/login");
       }
     };
 

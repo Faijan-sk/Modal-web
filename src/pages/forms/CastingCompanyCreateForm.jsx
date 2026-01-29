@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import useJwt from "./../../endpoints/jwt/useJwt";
+import { useAuth } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export default function CompanyCreateForm() {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     company_name: "",
     contact_name: "",
@@ -15,6 +19,8 @@ export default function CompanyCreateForm() {
   });
 
   const [selectedLogo, setSelectedLogo] = useState(null);
+
+  const { handleProfileUpload, logout } = useAuth();
 
   // SERVICES
   const handleChange = (field, value) => {
@@ -32,11 +38,7 @@ export default function CompanyCreateForm() {
   };
 
   const handleLogout = () => {
-    try {
-      localStorage.removeItem("authData");
-    } catch (err) {
-      console.error("Error clearing authData:", err);
-    }
+    logout();
     window.location.href = "/";
   };
 
@@ -48,9 +50,7 @@ export default function CompanyCreateForm() {
   };
 
   // SOCIAL LINKS
-  const [socialLinks, setSocialLinks] = useState([
-    { platform: "", url: "" },
-  ]);
+  const [socialLinks, setSocialLinks] = useState([{ platform: "", url: "" }]);
 
   const handlePlatformChange = (index, value) => {
     const updated = [...socialLinks];
@@ -78,12 +78,11 @@ export default function CompanyCreateForm() {
     setSocialLinks([...socialLinks, { platform: "", url: "" }]);
   };
 
-  // ⭐ SUBMIT FUNCTION UPDATED
+  // ⭐ SUBMIT FUNCTION
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const fd = new FormData();
-
     fd.append("company_name", formData.company_name);
     fd.append("contact_name", formData.contact_name);
     fd.append("phone", formData.phone);
@@ -92,12 +91,9 @@ export default function CompanyCreateForm() {
     fd.append("tagline", formData.tagline);
     fd.append("about", formData.about);
 
-    // ⭐ Backend चाहता JSON string
     fd.append("services", JSON.stringify(formData.services));
 
-    // ⭐ Convert social link array → JSON object {facebook:"", insta:""}
     const socialObj = {};
-
     socialLinks.forEach((item) => {
       if (item.platform && item.url) {
         socialObj[item.platform] = item.url;
@@ -110,13 +106,35 @@ export default function CompanyCreateForm() {
       fd.append("logo", selectedLogo);
     }
 
-    // try {
-    //   const response = await useJwt.completeCastingProfile(fd);
-    //   // alert("Company Profile Created Successfully!");
-    // } catch (error) {
-    //   console.log(error);
-    //   // alert("Something went wrong!");
-    // }
+    try {
+      const response = await useJwt.completeCastingProfile(fd);
+
+      if (response?.status === 200 || response?.status === 201) {
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+
+        if (storedUser) {
+          // Notify context that profile is uploaded
+          handleProfileUpload(true);
+
+          // Prepare updated user data (merging existing data with API response if available)
+          const updatedUserData = {
+            ...storedUser,
+            ...(response.data?.user || response.data), // Adjust based on your actual API response structure
+          };
+
+          // Save updated info to localStorage
+          localStorage.setItem("user", JSON.stringify(updatedUserData));
+
+          // ⭐ Redirect user to home
+          navigate("/");
+        } else {
+            // Fallback navigate if no user in localStorage
+            navigate("/");
+        }
+      }
+    } catch (error) {
+      console.error("Profile update failed:", error);
+    }
   };
 
   return (
@@ -158,7 +176,6 @@ export default function CompanyCreateForm() {
         />
       </div>
 
-
       {/* Phone + Website */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
@@ -188,7 +205,6 @@ export default function CompanyCreateForm() {
         </div>
       </div>
 
-
       {/* Address */}
       <div>
         <label className="text-sm font-medium mb-1 block">Address</label>
@@ -201,9 +217,8 @@ export default function CompanyCreateForm() {
         ></textarea>
       </div>
 
-
       {/* Company Logo */}
-      {/* <div>
+      <div>
         <label className="text-sm font-medium mb-1 block">Company Logo</label>
         <input
           type="file"
@@ -211,24 +226,10 @@ export default function CompanyCreateForm() {
           onChange={(e) => setSelectedLogo(e.target.files[0])}
           className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-primary focus:ring-1 focus:ring-primary outline-none"
         />
-      </div> */}
-
-
-      {/* Tagline */}
-      <div>
-        <label className="text-sm font-medium mb-1 block">Tagline</label>
-        <input
-          type="text"
-          placeholder="Enter tagline"
-          value={formData.tagline}
-          onChange={(e) => handleChange("tagline", e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-        />
       </div>
 
-
       {/* About */}
-      {/* <div>
+      <div>
         <label className="text-sm font-medium mb-1 block">About Company</label>
         <textarea
           rows={3}
@@ -237,79 +238,6 @@ export default function CompanyCreateForm() {
           onChange={(e) => handleChange("about", e.target.value)}
           className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-primary focus:ring-1 focus:ring-primary outline-none"
         ></textarea>
-      </div> */}
-
-      {/* Services */}
-      {/* <div>
-        <label className="text-sm font-medium mb-2 block">
-          Company Services
-        </label>
-
-        {formData.services.map((service, index) => (
-          <input
-            key={index}
-            type="text"
-            placeholder="Enter service"
-            value={service}
-            onChange={(e) => handleServiceChange(index, e.target.value)}
-            className="border border-gray-300 rounded-lg mb-2 px-3 py-2 w-full focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-          />
-        ))}
-
-        <button
-          type="button"
-          onClick={addServiceField}
-          className="text-sm px-3 py-1 border rounded-md"
-        >
-          + Add More Service
-        </button>
-      </div> */}
-
-      {/* SOCIAL LINKS */}
-      {/* <div className="space-y-2">
-        <label className="text-sm font-medium mb-2 block">
-          Social Media Links
-        </label>
-
-        {socialLinks.map((item, index) => (
-          <div key={index}>
-            <select
-              className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-primary focus:ring-1 focus:ring-primary outline-none mb-2"
-              value={item.platform}
-              onChange={(e) => handlePlatformChange(index, e.target.value)}
-            >
-              <option value="">Select Platform</option>
-              <option value="facebook">Facebook</option>
-              <option value="instagram">Instagram</option>
-              <option value="twitter">Twitter / X</option>
-              <option value="linkedin">LinkedIn</option>
-              <option value="youtube">YouTube</option>
-              <option value="website">Website</option>
-            </select>
-
-            {item.platform && (
-              <input
-                type="text"
-                placeholder="Enter platform URL"
-                value={item.url}
-                onChange={(e) => handleUrlChange(index, e.target.value)}
-                className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-primary focus:ring-1 focus:ring-primary outline-none mb-3"
-              />
-            )}
-
-            {item.platform &&
-              item.url &&
-              index === socialLinks.length - 1 && (
-                <button
-                  type="button"
-                  onClick={addNewSocialField}
-                  className="text-sm px-3 py-1 border rounded-md"
-                >
-                  + Add New Social Link
-                </button>
-              )}
-          </div>
-        ))}
       </div>
 
       <button
@@ -317,7 +245,7 @@ export default function CompanyCreateForm() {
         className="relative w-full mt-2 py-2 rounded-lg font-semibold tracking-[0.12em] uppercase text-sm bg-black !text-white hover:bg-primary hover:!text-white transition"
       >
         Create Company
-      </button> */}
+      </button>
 
       <p className=" text-center flex justify-center items-center mb-10">
         <span>Want to logout?</span>
@@ -332,17 +260,3 @@ export default function CompanyCreateForm() {
     </form>
   );
 }
-// import React from 'react'
-
-// function CastingCompanyCreateForm() {
-//   return (
-//     <div>
-//       <p className='mt-20 mb-20 text-2xl text-center'>
-//         Update Profile page
-//       </p>
-//     </div>
-
-//   )
-// }
-
-// export default CastingCompanyCreateForm

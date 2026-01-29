@@ -18,6 +18,7 @@ import {
 } from "react-icons/fa";
 
 import { ImFacebook2, ImLinkedin } from "react-icons/im";
+import { useAuth } from "../../context/AuthContext";
 
 // Platform icon mapping
 const PLATFORM_ICONS = {
@@ -40,7 +41,7 @@ const ProfilePage = () => {
   const [error, setError] = useState(null);
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
-
+  const {logout}=useAuth()
   const getInitials = (first, last) => {
     const a = (first || "").trim()[0] || "";
     const b = (last || "").trim()[0] || "";
@@ -65,11 +66,7 @@ const ProfilePage = () => {
 
   // LOGOUT
   const handleLogout = () => {
-    try {
-      localStorage.removeItem("authData");
-    } catch (err) {
-      console.error("Error clearing authData:", err);
-    }
+   logout()
     window.location.href = "/";
   };
 
