@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-
+import Modal from "./Model"
 
 const StaticJobCard = () => {
   const [openModal, setOpenModal] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
+  
 
   const staticJobs = [
   {
@@ -11,7 +12,7 @@ const StaticJobCard = () => {
     agency: { company_name: "Yash Raj Films" },
     job_role: "Lead Actor (Web Series)",
     description:
-      "Looking for male actor (25–35) for a crime thriller web series. Strong acting skills required.",
+      "Looking for male actor (25–35) for a crime thriller web series. Strong acting skills required. for a crime thriller web series. Strong acting skills required",
     posted: "2 days ago",
     project_type: "Paid Project",
     location: "Mumbai",
@@ -118,7 +119,7 @@ const StaticJobCard = () => {
           <div
             key={job.uuid || index}
             className="bg-white rounded-[22px] shadow-[0px_12px_30px_rgba(0,0,0,0.08)]
-                       h-[460px] flex flex-col overflow-hidden"
+                       h-[360px] flex flex-col overflow-hidden"
           >
             <div className="p-[22px] flex-1 flex flex-col">
               <div className="flex items-center justify-between">
@@ -200,24 +201,37 @@ const StaticJobCard = () => {
         );
       })}
 
-      {/* <BlankModal
-        isOpen={openModal}
-        job={selectedJob}
-        onClose={() => setOpenModal(false)}
-      /> */}
+
+{openModal && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center">
+    {/* Overlay */}
+    <div
+      className="absolute inset-0 bg-black/50"
+      onClick={() => setOpenModal(false)}
+    />
+
+    {/* Modal */}
+    <div className="relative bg-white w-[90%] max-w-md rounded-xl p-6 shadow-lg">
+      {/* Close (X) */}
+      <button
+        onClick={() => setOpenModal(false)}
+        className="absolute top-3 right-3 text-gray-400 hover:text-black text-xl font-bold"
+        aria-label="Close modal"
+      >
+        ×
+      </button>
+
+      <h2 className="text-lg font-bold mb-4">Job Details</h2>
+
+    <Modal />
+    </div>
+  </div>
+)}
+
+    
     </div>
   );
 };
 
 export default StaticJobCard;
-// import React from 'react';
 
-// function JobCards() {
-//   return (
-//     <div className="d-flex justify-content-center align-items-center">
-//       JobCard
-//     </div>
-//   );
-// }
-
-// export default JobCards;

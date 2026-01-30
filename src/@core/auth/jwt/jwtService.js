@@ -301,5 +301,9 @@ applyjob(args){
   return axios.post(this.jwtConfig.jobApplyEndpoint, args)
 }
 
+createJob(args){
+  return axios.post(this.jwtConfig.createJobEndpoint, args);
+}
+
 
 }
