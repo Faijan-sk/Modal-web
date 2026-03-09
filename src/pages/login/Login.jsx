@@ -5,24 +5,21 @@ import useJwt from "../../endpoints/jwt/useJwt";
 import CryptoJS from "crypto-js";
 import { useAuth } from "../../context/AuthContext";
 
-// AES config (same as signup)
-const SECRET_KEY = "12345678901234567890123456789012"; // 32 chars
-const IV = "1234567890123456"; // 16 chars
+// AES config
+const SECRET_KEY = "12345678901234567890123456789012"; 
+const IV = "1234567890123456"; 
 
 export function aesEncrypt(text) {
   const key = CryptoJS.enc.Utf8.parse(SECRET_KEY);
   const iv = CryptoJS.enc.Utf8.parse(IV);
-
   const encrypted = CryptoJS.AES.encrypt(text, key, {
     iv: iv,
     mode: CryptoJS.mode.CBC,
     padding: CryptoJS.pad.Pkcs7,
   });
-
-  return encrypted.toString(); // Base64
+  return encrypted.toString();
 }
 
-// wrapper used in submit
 const encryptPassword = (password) => {
   try {
     return aesEncrypt(password);
@@ -32,14 +29,8 @@ const encryptPassword = (password) => {
   }
 };
 
-// ✅ Static public key kept only for reference (not used now)
-const PUBLIC_KEY_HEX =
-  "203db88555e364bf7f8b8a68b7dc24357c9c192ff9ad82002fe63885849ee50e";
-
 function Login({ onLoginSuccess }) {
-
-const {login,handleProfileUpload}=useAuth()
-
+  const { login, handleProfileUpload } = useAuth();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -48,23 +39,25 @@ const {login,handleProfileUpload}=useAuth()
   });
 
   const [errors, setErrors] = useState({});
+  const [apiError, setApiError] = useState(""); // ✅ New state for API response errors
   const [submitButton, setSubmitButton] = useState("Login");
 
   const handleEmailChange = (e) => {
     const value = e.target.value;
+    setApiError(""); // Clear API error on change
     if (/^[A-Za-z0-9@.]*$/.test(value)) {
       setFormData((prev) => ({ ...prev, email: value }));
       setErrors((prev) => ({ ...prev, email: "" }));
     } else {
       setErrors((prev) => ({
         ...prev,
-        email:
-          "Only alphabets, numbers, @ and . are allowed in Email. Other characters are not allowed.",
+        email: "Only alphabets, numbers, @ and . are allowed.",
       }));
     }
   };
 
   const handlePasswordChange = (e) => {
+    setApiError(""); // Clear API error on change
     const value = e.target.value;
     setFormData((prev) => ({ ...prev, password: value }));
     setErrors((prev) => ({ ...prev, password: "" }));
@@ -72,6 +65,7 @@ const {login,handleProfileUpload}=useAuth()
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setApiError(""); // Reset error on new attempt
 
     const newErrors = {};
     if (!formData.email.trim()) newErrors.email = "Email is required.";
@@ -95,38 +89,28 @@ const {login,handleProfileUpload}=useAuth()
 
       if (response?.status === 200 || response?.status === 201) {
         const data = response.data;
-
-        // 🔥 USER NORMALIZATION (IMPORTANT FIX)
         if (data?.user) {
           const normalizedUser = {
             ...data.user,
-            userType: data.user.userType ?? data.user.user_type, // ✅ FIX
+            userType: data.user.userType ?? data.user.user_type,
           };
-
-          login(normalizedUser)
-          handleProfileUpload(normalizedUser.update_profile)
-
-          // update_profile
-
-          // localStorage.setItem("user", JSON.stringify(normalizedUser));
+          login(normalizedUser);
+          handleProfileUpload(normalizedUser.update_profile);
         }
-
-        // ✅ Full auth response
-        // localStorage.setItem("authData", JSON.stringify(data));
 
         if (typeof onLoginSuccess === "function") {
           onLoginSuccess();
         }
-
         navigate("/");
       }
-
-      setFormData({ email: "", password: "" });
-      setErrors({});
-      setSubmitButton("Login");
     } catch (err) {
       console.error("Login error:", err);
+      // ✅ API response extract karke state me set karna
+      const message = err.response?.data?.detail || "Something went wrong. Please try again.";
+      setApiError(message); 
       setSubmitButton("Login");
+    } finally {
+        // Cleaning up state if needed
     }
   };
 
@@ -136,10 +120,15 @@ const {login,handleProfileUpload}=useAuth()
         Login
       </h2>
 
+      {/* ✅ API Error Alert Box */}
+      {apiError && (
+        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-2 rounded-lg text-sm text-center animate-pulse">
+          {apiError}
+        </div>
+      )}
+
       <div>
-        <label className="text-sm font-medium mb-1 text-gray-700 block">
-          Email
-        </label>
+        <label className="text-sm font-medium mb-1 text-gray-700 block">Email</label>
         <input
           type="text"
           placeholder="Enter email"
@@ -147,15 +136,11 @@ const {login,handleProfileUpload}=useAuth()
           onChange={handleEmailChange}
           className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-primary focus:ring-1 focus:ring-primary outline-none"
         />
-        {errors.email && (
-          <p className="mt-1 text-xs text-red-500">{errors.email}</p>
-        )}
+        {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
       </div>
 
       <div>
-        <label className="text-sm font-medium mb-1 text-gray-700 block">
-          Password
-        </label>
+        <label className="text-sm font-medium mb-1 text-gray-700 block">Password</label>
         <input
           type="password"
           placeholder="Enter password"
@@ -163,14 +148,13 @@ const {login,handleProfileUpload}=useAuth()
           onChange={handlePasswordChange}
           className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-primary focus:ring-1 focus:ring-primary outline-none"
         />
-        {errors.password && (
-          <p className="mt-1 text-xs text-red-500">{errors.password}</p>
-        )}
+        {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password}</p>}
       </div>
 
       <button
         type="submit"
-        className="relative w-full mt-2 py-2 rounded-lg font-semibold tracking-[0.12em] uppercase text-sm bg-black !text-white hover:bg-primary hover:!text-white transition"
+        disabled={submitButton === "Logging in..."}
+        className="relative w-full mt-2 py-2 rounded-lg font-semibold tracking-[0.12em] uppercase text-sm bg-black !text-white hover:bg-primary hover:!text-white transition disabled:bg-gray-400"
       >
         {submitButton}
       </button>

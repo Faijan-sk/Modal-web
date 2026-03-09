@@ -14,10 +14,9 @@ export default {
   registerEndpoint: '/auth/register',
   loginEndpoint: '/auth/login',
   updatetProfileEndpoint : '/model/user/update-profile',
-  
-  physicalAttributeFormEndpoint: '/model/profile',
   professionalFormEndpoint : '/model/professional',
   ProfileMediaSetEndpoint: 'model/media/upload',
+  deleteAccountEndpoint : '/auth/delete-account',
   
 
 /*
@@ -26,8 +25,7 @@ export default {
 profileCompletionCheckEndpoint: '/model/profile/completion-status/{uuid}',
 addMediaToProfileEndpoint : '/model/images',
 getProfileInfoEndPoint : '/model/info',
-getPhysicalAttributeFormData : '/model/profile',
-getProfessionalInfoFormData : '/model/professional',
+PhysicalEndpoint : '/model/profile',
 uploadVideoToProfileEndpoint: "/model/video", 
 addLinksToProfileEndpoint : '/model/social/links',
 getMediaFormData : '/model/media/',
@@ -49,8 +47,12 @@ getJobsEndpoint : '',
 
 // get Jobs
 
-allJobsList:'/public/jobs',
+getAllJobsList:'/agency/job/post',
 jobDetailsById : '/agency/jobposting/',
 jobApplyEndpoint : '/applications/',
-createJobEndpoint : 'agency/job/post'
+createJobEndpoint : 'agency/job/post',
+getCreatedJobs: '/agency/job/post'
+
+
+
 }

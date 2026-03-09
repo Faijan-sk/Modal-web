@@ -134,6 +134,12 @@ const Footer = () => {
             >
               Privacy Policy
             </a>
+             <a 
+              href="/child-safety-policy" 
+              className="text-primary transition-all duration-300 hover:drop-shadow-[0_0_8px_rgb(255_105_180)]"
+            >
+           Child Safety / CSAE Policy
+            </a>
 
             {/* <a 
               href="/jobs" 

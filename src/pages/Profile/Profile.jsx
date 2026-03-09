@@ -296,7 +296,7 @@ const ModelPortfolioPage = () => {
       {/* Scroll to top */}
       <button
         onClick={handleScrollTop}
-        className="fixed bottom-6 right-6 h-10 w-10 flex items-center justify-center bg-black text-white hover:bg-gray-900 transition rounded-none"
+        className="fixed bottom-6 right-6 h-10 w-10 flex items-center justify-center text-white hover:bg-gray-900 transition rounded-none"
       >
         ↑
       </button>

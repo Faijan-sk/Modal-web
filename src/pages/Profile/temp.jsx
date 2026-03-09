@@ -1,6 +1,6 @@
 // src/ProfilePage.jsx
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom"; // Added Link
 import Post from "./Post";
 import Videos from "./Videos";
 import Acchivements from "./Acchivements";
@@ -41,7 +41,8 @@ const ProfilePage = () => {
   const [error, setError] = useState(null);
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
-  const {logout}=useAuth()
+  const { logout } = useAuth()
+
   const getInitials = (first, last) => {
     const a = (first || "").trim()[0] || "";
     const b = (last || "").trim()[0] || "";
@@ -66,7 +67,7 @@ const ProfilePage = () => {
 
   // LOGOUT
   const handleLogout = () => {
-   logout()
+    logout()
     window.location.href = "/";
   };
 
@@ -93,19 +94,12 @@ const ProfilePage = () => {
   const professional = profile?.professional_info ?? {};
   const socialLinksObj = profile?.social_links ?? {};
 
-  // Convert social_links object to array, filter out null/empty/invalid values
   const socialLinksArray = Object.entries(socialLinksObj)
     .filter(([platform, url]) => {
-      // Check if URL exists and is not empty
       if (!url || url.trim() === "") return false;
-      
-      // Remove common placeholder values
       const normalizedUrl = url.toLowerCase().trim();
       const invalidValues = ["string", "null", "undefined", "none", "n/a"];
-      
       if (invalidValues.includes(normalizedUrl)) return false;
-      
-      // Optional: Check if it looks like a valid URL (contains . or starts with http)
       return normalizedUrl.includes(".") || normalizedUrl.startsWith("http");
     })
     .map(([platform, url]) => ({ platform, url }));
@@ -121,8 +115,6 @@ const ProfilePage = () => {
   const handleSaveLinks = async (links) => {
     try {
       const response = await useJwt.addLinksToProfile(links);
-      console.log("Links saved successfully:", response);
-
       const updated = { ...profile };
       updated.social_links = links.map(link => ({
         platform: link.platform,
@@ -130,12 +122,11 @@ const ProfilePage = () => {
         uuid: link.uuid || `temp-${Date.now()}-${Math.random()}`
       }));
       setProfile(updated);
-
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch (err) {
       console.error("Failed to save links:", err);
-      throw new Error(err.response?.data?.message || "Failed to save links. Please try again.");
+      throw new Error(err.response?.data?.message || "Failed to save links.");
     }
   };
 
@@ -155,18 +146,7 @@ const ProfilePage = () => {
     return (
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", padding: "1rem" }}>
         <div style={{ color: "#dc2626", fontSize: "18px", fontWeight: "600" }}>{error}</div>
-        <button
-          onClick={() => window.location.reload()}
-          style={{
-            marginTop: "1rem",
-            padding: "0.5rem 1rem",
-            backgroundColor: "#000",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer"
-          }}
-        >
+        <button onClick={() => window.location.reload()} style={{ marginTop: "1rem", padding: "0.5rem 1rem", backgroundColor: "#000", color: "white", border: "none", borderRadius: "8px", cursor: "pointer" }}>
           Retry
         </button>
       </div>
@@ -176,17 +156,7 @@ const ProfilePage = () => {
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#f9fafb", paddingBottom: "2.5rem" }}>
       {saveSuccess && (
-        <div style={{
-          position: "fixed",
-          top: "1rem",
-          right: "1rem",
-          zIndex: 50,
-          backgroundColor: "#22c55e",
-          color: "white",
-          padding: "0.75rem 1.5rem",
-          borderRadius: "8px",
-          boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)"
-        }}>
+        <div style={{ position: "fixed", top: "1rem", right: "1rem", zIndex: 50, backgroundColor: "#22c55e", color: "white", padding: "0.75rem 1.5rem", borderRadius: "8px", boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)" }}>
           Links saved successfully!
         </div>
       )}
@@ -194,6 +164,8 @@ const ProfilePage = () => {
       <div style={{ maxWidth: "80rem", margin: "0 auto", padding: "0 1rem", paddingTop: "2rem" }}>
         <div className="bg-gradient-to-tr from-white via-primary/5 to-primary/20 rounded-2xl shadow-lg p-6 mb-6">
           <div style={{ display: "flex", flexDirection: window.innerWidth < 768 ? "column" : "row", gap: "1.5rem" }}>
+            
+            {/* PROFILE IMAGE / INITIALS */}
             <div style={{ position: "relative" }}>
               <div style={{
                 width: "128px",
@@ -228,41 +200,62 @@ const ProfilePage = () => {
                   </div>
                   <p style={{ color: "#6b7280", margin: "0.25rem 0 0 0" }}>{professional?.experience_level ?? "Talent"}</p>
                 </div>
-                <button
-                  onClick={handleEditProfile}
-                  style={{
-                    padding: "0.5rem 1rem",
-                    borderRadius: "8px",
-                    border: "1px solid #d1d5db",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    cursor: "pointer",
-                    backgroundColor: "white"
-                  }}
-                >
-                  Edit Profile
-                </button>
+
+                {/* UPDATED: EDIT & DELETE BUTTONS IN ONE LINE - RIGHT ALIGNED */}
+                <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                  <button
+                    onClick={handleEditProfile}
+                    style={{
+                      padding: "0.5rem 1rem",
+                      borderRadius: "8px",
+                      border: "1px solid #d1d5db",
+                      fontSize: "14px",
+                      fontWeight: "500",
+                      cursor: "pointer",
+                      backgroundColor: "white",
+                      transition: "all 0.2s"
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f3f4f6"}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "white"}
+                  >
+                    Edit Profile
+                  </button>
+                  
+                  <Link 
+                    to="/delete-account"
+                    style={{ 
+                      fontSize: "14px", 
+                      fontWeight: "600", 
+                      color: "#dc2626", 
+                      textDecoration: "none",
+                      border: "1px solid #fee2e2",
+                      padding: "0.5rem 1rem",
+                      borderRadius: "8px",
+                      backgroundColor: "#fef2f2"
+                    }}
+                  >
+                    Delete Account
+                  </Link>
+                </div>
               </div>
 
+              {/* ABOUT SECTION */}
               <div style={{ marginBottom: "1rem" }}>
                 <h3 style={{ fontWeight: "600", color: "#111827", marginBottom: "0.5rem" }}>About Talent</h3>
                 <p style={{ fontSize: "14px", color: "#6b7280", marginBottom: "0.5rem" }}>
                   {professional?.experience_details ?? "No bio available."}
                 </p>
-                <p style={{ fontSize: "14px", color: "#6b7280", margin: "0.25rem 0" }}>
-                  Email: {basic.email ?? "—"}
-                </p>
-                <p style={{ fontSize: "14px", color: "#6b7280", margin: "0.25rem 0" }}>
-                  Phone: {basic.country_code ?? ""} {basic.phone ?? "—"}
-                </p>
-                <p style={{ fontSize: "14px", color: "#6b7280", margin: "0.25rem 0" }}>
-                  DOB: {basic.dob ?? "—"}
-                  {age !== null && <> • {age} yr{age > 1 ? "s" : ""}</>}
-                </p>
-
-                
+                <div style={{ fontSize: "14px", color: "#6b7280" }}>
+                   <p style={{ margin: "2px 0" }}>Email: {basic.email ?? "—"}</p>
+                   <p style={{ margin: "2px 0" }}>Phone: {basic.country_code ?? ""} {basic.phone ?? "—"}</p>
+                   <p style={{ margin: "2px 0" }}>
+                     DOB: {basic.dob ?? "—"}
+                     {age !== null && <> • {age} yr{age > 1 ? "s" : ""}</>}
+                   </p>
+                </div>
               </div>
 
+              {/* GRID INFO */}
               <div style={{ display: "grid", gridTemplateColumns: window.innerWidth < 768 ? "1fr 1fr" : "repeat(4, 1fr)", gap: "1rem", fontSize: "14px" }}>
                 <div>
                   <div style={{ fontWeight: "600", color: "#374151" }}>Location</div>
@@ -290,13 +283,12 @@ const ProfilePage = () => {
             </div>
           </div>
 
+          {/* SOCIAL LINKS AREA */}
           <div style={{ marginTop: "1.5rem", display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "1rem", paddingTop: "1.5rem", borderTop: "1px solid #e5e7eb" }}>
             <div style={{ display: "flex", gap: "1.5rem", alignItems: "center" }}>
-              {/* Social Media Icons - Only show valid links */}
               {socialLinksArray.map((link, index) => {
                 const IconComponent = PLATFORM_ICONS[link.platform.toLowerCase()];
                 if (!IconComponent) return null;
-
                 return (
                   <a
                     key={index}
@@ -304,14 +296,7 @@ const ProfilePage = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     title={`Visit ${link.platform}`}
-                    style={{
-                      fontSize: "24px",
-                      color: "#374151",
-                      transition: "color 0.2s",
-                      display: "flex",
-                      alignItems: "center",
-                      cursor: "pointer"
-                    }}
+                    style={{ fontSize: "24px", color: "#374151", transition: "color 0.2s", display: "flex", alignItems: "center", cursor: "pointer" }}
                     onMouseEnter={(e) => e.currentTarget.style.color = "#000"}
                     onMouseLeave={(e) => e.currentTarget.style.color = "#374151"}
                   >
@@ -324,19 +309,7 @@ const ProfilePage = () => {
             <div>
               <button
                 onClick={() => setIsLinkModalOpen(true)}
-                style={{
-                  padding: "0.5rem 1rem",
-                  borderRadius: "8px",
-                  backgroundColor: "white",
-                  color: "black",
-                  border: "1px solid #d1d5db",
-                  fontWeight: "500",
-                  fontSize: "14px",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.5rem"
-                }}
+                style={{ padding: "0.5rem 1rem", borderRadius: "8px", backgroundColor: "white", color: "black", border: "1px solid #d1d5db", fontWeight: "500", fontSize: "14px", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.5rem" }}
               >
                 {socialLinksArray && socialLinksArray.length > 0 ? "Edit Links" : "Add Social Links"}
               </button>
@@ -344,53 +317,24 @@ const ProfilePage = () => {
           </div>
         </div>
 
+        {/* TABS SECTION */}
         <div style={{ backgroundColor: "white", borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.1)", overflow: "hidden" }}>
           <div style={{ display: "flex", borderBottom: "1px solid #e5e7eb" }}>
             <button
               onClick={() => setActiveTab("posts")}
-              style={{
-                flex: 1,
-                padding: "1rem",
-                textAlign: "center",
-                fontWeight: "500",
-                cursor: "pointer",
-                backgroundColor: "transparent",
-                border: "none",
-                color: activeTab === "posts" ? "#000" : "#9ca3af",
-                borderBottom: activeTab === "posts" ? "2px solid #000" : "none"
-              }}
+              style={{ flex: 1, padding: "1rem", textAlign: "center", fontWeight: "500", cursor: "pointer", backgroundColor: "transparent", border: "none", color: activeTab === "posts" ? "#000" : "#9ca3af", borderBottom: activeTab === "posts" ? "2px solid #000" : "none" }}
             >
               Portfolio
             </button>
             <button
               onClick={() => setActiveTab("videos")}
-              style={{
-                flex: 1,
-                padding: "1rem",
-                textAlign: "center",
-                fontWeight: "500",
-                cursor: "pointer",
-                backgroundColor: "transparent",
-                border: "none",
-                color: activeTab === "videos" ? "#000" : "#9ca3af",
-                borderBottom: activeTab === "videos" ? "2px solid #000" : "none"
-              }}
+              style={{ flex: 1, padding: "1rem", textAlign: "center", fontWeight: "500", cursor: "pointer", backgroundColor: "transparent", border: "none", color: activeTab === "videos" ? "#000" : "#9ca3af", borderBottom: activeTab === "videos" ? "2px solid #000" : "none" }}
             >
               Showreels
             </button>
             <button
               onClick={() => setActiveTab("acchivements")}
-              style={{
-                flex: 1,
-                padding: "1rem",
-                textAlign: "center",
-                fontWeight: "500",
-                cursor: "pointer",
-                backgroundColor: "transparent",
-                border: "none",
-                color: activeTab === "acchivements" ? "#000" : "#9ca3af",
-                borderBottom: activeTab === "acchivements" ? "2px solid #000" : "none"
-              }}
+              style={{ flex: 1, padding: "1rem", textAlign: "center", fontWeight: "500", cursor: "pointer", backgroundColor: "transparent", border: "none", color: activeTab === "acchivements" ? "#000" : "#9ca3af", borderBottom: activeTab === "acchivements" ? "2px solid #000" : "none" }}
             >
               Awards
             </button>
@@ -401,7 +345,8 @@ const ProfilePage = () => {
             {activeTab === "videos" && <Videos />}
             {activeTab === "acchivements" && <Acchivements />}
           </div>
-          <p className=" text-center flex justify-center items-center mb-5">
+          
+          <p className="text-center flex justify-center items-center mb-5">
             <span>Want to logout?</span>
             <button
               type="button"
@@ -414,7 +359,6 @@ const ProfilePage = () => {
         </div>
       </div>
 
-      {/* LinkModal Component */}
       <LinkModal
         open={isLinkModalOpen}
         onClose={() => setIsLinkModalOpen(false)}

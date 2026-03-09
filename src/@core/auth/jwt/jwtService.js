@@ -5,7 +5,7 @@ import jwtDefaultConfig from './jwtDefaultConfig'
 // PRODUCTION GCP Configuration - PORT 8080 add kiya gaya hai
 axios.defaults.baseURL = 'http://35.192.79.35/api/'
 // axios.defaults.baseURL = 'https://locktrust.xyz/drakeapi'
-// axios.defaults.baseURL = 'http://192.168.1.24:8005'
+// axios.defaults.baseURL = 'http://192.168.1.23:8005'
 
 
 // axios.defaults.baseURL = 'http://34.71.120.171:8080/'
@@ -188,14 +188,15 @@ export default class JwtService {
 
 
 
-  physicalAttributeSet(...args){
-    return axios.post(this.jwtConfig.physicalAttributeFormEndpoint, ...args)
-  }
+ 
 
   professionalFormSet(...args){
 
   return axios.post(this.jwtConfig.professionalFormEndpoint,...args)
   }
+
+
+  
   modelMediaSet(...args){
     return axios.post(this.jwtConfig.ProfileMediaSetEndpoint, ...args)
   }
@@ -280,13 +281,16 @@ getProgressStatus(uid) {
   return axios.get(url);
 }
 
+ physicalAttributeSet(...args){
+    return axios.post(this.jwtConfig.PhysicalEndpoint,...args)
+  }
 
 getPhysicalAttribute(){
-  return axios.get(this.jwtConfig.getPhysicalAttributeFormData)
+  return axios.get(this.jwtConfig.PhysicalEndpoint)
 }
 
 getProfessionalInfo(){
-  return axios.get(this.jwtConfig.getProfessionalInfoFormData)
+  return axios.get(this.jwtConfig.professionalFormEndpoint)
 }
 
 getMediaFormData(){
@@ -305,5 +309,12 @@ createJob(args){
   return axios.post(this.jwtConfig.createJobEndpoint, args);
 }
 
+getOwnCreatedJobs(){
+  return axios.get(this.jwtConfig.getCreatedJobs)
+}
+
+deleteAccount(){
+  return axios.delete(this.jwtConfig.deleteAccountEndpoint)
+}
 
 }

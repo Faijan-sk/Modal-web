@@ -1,6 +1,6 @@
 import { Suspense, useState } from 'react'
 import './App.css'
-import './App.css'
+
 import './index.css'
 import  AppRouter from "./router/AppRouter"
 function App() {

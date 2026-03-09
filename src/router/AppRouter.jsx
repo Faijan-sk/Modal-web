@@ -16,6 +16,8 @@
   import CastingJobs from "./../pages/castingJobs/index"
   import TermsAndCondition from '../pages/termsAndCondition/TermsAndCondition'
   import PrivacyPolicy from '../pages/termsAndCondition/PrivacyPolicy'
+  import ChildPrivacyPolicy from "./../pages/termsAndCondition/ChildSafetyPolicy"
+  import DeleteAccount from '../pages/DeleteAccount.jsx'
   const NotFound = () => <div>404 - Page not found</div>
 
   const AppRouter = () => {
@@ -43,6 +45,8 @@
             <Route path='/casting-job' element={<CastingJobs />} />
             <Route path='/terms-condition' element={<TermsAndCondition />} />
             <Route path='/privacy-policy' element={<PrivacyPolicy />} />
+            <Route path='/child-safety-policy' element={<ChildPrivacyPolicy />} />
+            <Route path='/delete-account' element={<DeleteAccount />} />
           
             <Route path="*" element={<NotFound />} />
           </Routes>
