@@ -141,6 +141,13 @@ const Footer = () => {
            Child Safety / CSAE Policy
             </a>
 
+            <a 
+              href="/delete-account" 
+              className="text-primary transition-all duration-300 hover:drop-shadow-[0_0_8px_rgb(255_105_180)]"
+            >
+              Delete Account
+            </a>
+
             {/* <a 
               href="/jobs" 
               className="text-primary transition-all duration-300 hover:drop-shadow-[0_0_8px_rgb(255_105_180)]"

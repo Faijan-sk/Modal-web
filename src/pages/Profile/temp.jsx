@@ -1,6 +1,6 @@
 // src/ProfilePage.jsx
 import React, { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom"; // Added Link
+import { useNavigate, Link } from "react-router-dom";
 import Post from "./Post";
 import Videos from "./Videos";
 import Acchivements from "./Acchivements";
@@ -40,8 +40,10 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // Modal state
+  const [isDeleting, setIsDeleting] = useState(false); // Loading state for delete
   const [saveSuccess, setSaveSuccess] = useState(false);
-  const { logout } = useAuth()
+  const { logout } = useAuth();
 
   const getInitials = (first, last) => {
     const a = (first || "").trim()[0] || "";
@@ -67,7 +69,7 @@ const ProfilePage = () => {
 
   // LOGOUT
   const handleLogout = () => {
-    logout()
+    logout();
     window.location.href = "/";
   };
 
@@ -134,6 +136,20 @@ const ProfilePage = () => {
     navigate("/edit-profile");
   };
 
+  const handleDelete = async () => {
+    try {
+      setIsDeleting(true);
+      await useJwt.deleteAccount();
+      logout();
+      window.location.href = "/";
+    } catch (err) {
+      console.error("Delete failed:", err);
+      alert("Error: Account delete nahi ho paya.");
+      setIsDeleting(false);
+      setIsDeleteModalOpen(false);
+    }
+  };
+
   if (loading) {
     return (
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh" }}>
@@ -155,6 +171,52 @@ const ProfilePage = () => {
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#f9fafb", paddingBottom: "2.5rem" }}>
+      
+      {/* --- CONFIRMATION MODAL --- */}
+    {isDeleteModalOpen && (
+  <div style={{
+    position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center",
+    justifyContent: "center", zIndex: 999, padding: "1rem"
+  }}>
+    <div style={{
+      backgroundColor: "white", borderRadius: "16px", padding: "2rem",
+      maxWidth: "400px", width: "100%", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)"
+    }}>
+      <h2 style={{ fontSize: "20px", fontWeight: "700", color: "#111827", marginBottom: "0.75rem" }}>
+        Delete Account?
+      </h2>
+      <p style={{ color: "#4b5563", fontSize: "14px", lineHeight: "1.5", marginBottom: "1.5rem" }}>
+        Are you sure? This process is <strong>permanent</strong> and cannot be undone. All of your profile data will be permanently removed.
+      </p>
+      <div style={{ display: "flex", gap: "0.75rem" }}>
+        <button
+          disabled={isDeleting}
+          onClick={() => setIsDeleteModalOpen(false)}
+          style={{ 
+            flex: 1, padding: "0.6rem", borderRadius: "8px", border: "1px solid #d1d5db", 
+            backgroundColor: "white", fontWeight: "600", cursor: "pointer" 
+          }}
+        >
+          Cancel
+        </button>
+        <button
+          disabled={isDeleting}
+          onClick={handleDelete}
+          style={{ 
+            flex: 1, padding: "0.6rem", borderRadius: "8px", border: "none", 
+            backgroundColor: "#dc2626", color: "white", fontWeight: "600", 
+            cursor: isDeleting ? "not-allowed" : "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center"
+          }}
+        >
+          {isDeleting ? <CircularProgress size={20} color="inherit" /> : "Confirm Delete"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
       {saveSuccess && (
         <div style={{ position: "fixed", top: "1rem", right: "1rem", zIndex: 50, backgroundColor: "#22c55e", color: "white", padding: "0.75rem 1.5rem", borderRadius: "8px", boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)" }}>
           Links saved successfully!
@@ -201,7 +263,6 @@ const ProfilePage = () => {
                   <p style={{ color: "#6b7280", margin: "0.25rem 0 0 0" }}>{professional?.experience_level ?? "Talent"}</p>
                 </div>
 
-                {/* UPDATED: EDIT & DELETE BUTTONS IN ONE LINE - RIGHT ALIGNED */}
                 <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
                   <button
                     onClick={handleEditProfile}
@@ -221,21 +282,22 @@ const ProfilePage = () => {
                     Edit Profile
                   </button>
                   
-                  <Link 
-                    to="/delete-account"
+                  {/* UPDATED: Delete Button triggers Modal */}
+                  <button 
+                    onClick={() => setIsDeleteModalOpen(true)}
                     style={{ 
                       fontSize: "14px", 
                       fontWeight: "600", 
                       color: "#dc2626", 
-                      textDecoration: "none",
                       border: "1px solid #fee2e2",
                       padding: "0.5rem 1rem",
                       borderRadius: "8px",
-                      backgroundColor: "#fef2f2"
+                      backgroundColor: "#fef2f2",
+                      cursor: "pointer"
                     }}
                   >
                     Delete Account
-                  </Link>
+                  </button>
                 </div>
               </div>
 

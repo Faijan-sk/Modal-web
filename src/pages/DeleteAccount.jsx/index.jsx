@@ -12,42 +12,42 @@ function DeleteAccount() {
 
     const BASE_URL = 'http://35.192.79.35';
 
-    const handleDelete = async (e) => {
-        if (e) e.preventDefault();
+    // const handleDelete = async (e) => {
+    //     if (e) e.preventDefault();
         
-        setError('');
-        setSuccess('');
+    //     setError('');
+    //     setSuccess('');
 
-        // Confirmation dialog for safety
-        if (!window.confirm("Are you sure you want to permanently delete your account? This action cannot be undone.")) {
-            return;
-        }
+    //     // Confirmation dialog for safety
+    //     if (!window.confirm("Are you sure you want to permanently delete your account? This action cannot be undone.")) {
+    //         return;
+    //     }
 
-        try {
-            setLoading(true);
-            const response = await useJwt.deleteAccount();
+    //     try {
+    //         setLoading(true);
+    //         const response = await useJwt.deleteAccount();
 
-            if (response.status === 200 || response.status === 201 || response.status === 204) {
-                setSuccess(response.data?.message || 'Account deleted successfully');
+    //         if (response.status === 200 || response.status === 201 || response.status === 204) {
+    //             setSuccess(response.data?.message || 'Account deleted successfully');
                 
-                // Clear auth data and logout
-                logout();
+    //             // Clear auth data and logout
+    //             logout();
 
-                // Auto redirect after 3 seconds to external URL
-                setTimeout(() => {
-                    window.location.href = `${BASE_URL}`;
-                }, 3000);
-            } else {
-                setError(response.data?.detail || 'Failed to delete account');
-            }
-        } catch (err) {
-            console.error("Delete Error:", err);
-            const errorMessage = err.response?.data?.detail || 'Something went wrong. Please try again.';
-            setError(errorMessage);
-        } finally {
-            setLoading(false);
-        }
-    };
+    //             // Auto redirect after 3 seconds to external URL
+    //             setTimeout(() => {
+    //                 window.location.href = `${BASE_URL}`;
+    //             }, 3000);
+    //         } else {
+    //             setError(response.data?.detail || 'Failed to delete account');
+    //         }
+    //     } catch (err) {
+    //         console.error("Delete Error:", err);
+    //         const errorMessage = err.response?.data?.detail || 'Something went wrong. Please try again.';
+    //         setError(errorMessage);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
 
     return (
         <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -146,7 +146,7 @@ function DeleteAccount() {
                 </div>
 
                 {/* Original Button Design Layout */}
-                <div className="flex justify-center mt-6">
+                {/* <div className="flex justify-center mt-6">
                     {!success ? (
                         <button
                             onClick={handleDelete}
@@ -164,7 +164,7 @@ function DeleteAccount() {
                             Return to Login
                         </a>
                     )}
-                </div>
+                </div> */}
 
             </div>
         </div>
