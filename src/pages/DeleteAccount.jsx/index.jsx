@@ -54,11 +54,11 @@ function DeleteAccount() {
             <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-8 md:p-12">
 
                 <h1 className="text-4xl text-primary mb-6 font-bold">
-                    Delete Your Drake Girl Account
+                    Delete Your DrakeOnline Account
                 </h1>
 
                 <p className="text-gray-700 mb-8 leading-relaxed">
-                    At Drake Girl, we respect your privacy and provide you with the ability to permanently delete your account and associated personal data at any time.
+                    At DrakeOnline, we respect your privacy and provide you with the ability to permanently delete your account and associated personal data at any time.
                     You can delete your account using either the mobile application or the website.
                 </p>
 
@@ -68,7 +68,7 @@ function DeleteAccount() {
                         Delete Your Account Using the Mobile App
                     </h2>
                     <ul className="list-disc list-inside text-gray-700 ml-4 space-y-2">
-                        <li>Open the Drake Girl mobile application.</li>
+                        <li>Open the DrakeOnline mobile application.</li>
                         <li>Log in to your account.</li>
                         <li>Navigate to your <strong>Profile</strong> or <strong>Account Settings</strong>.</li>
                         <li>Tap on <strong>"Delete Account"</strong>.</li>
@@ -125,7 +125,7 @@ function DeleteAccount() {
                     <p className="text-gray-700 mt-2">
                         <span className="text-primary font-bold">Email:</span>{" "}
                         <a href="mailto:support@yourdomain.com" className="text-primary underline">
-                            support@yourdomain.com
+                            support@drakeonline.com
                         </a>
                     </p>
                 </section>
