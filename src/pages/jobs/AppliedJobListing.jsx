@@ -1,18 +1,33 @@
 import React, { useState, useMemo } from "react";
 import BlankModal from "./Model";
 
-
 const JOBS_PER_PAGE = 8;
 
-const JobCard = ({ jobsData = [], searchText, location, jobType, salaryRange }) => {
+const STATUS_STYLES = {
+  applied:  { bg: "#EEF2FF", color: "#4F46E5", label: "Applied" },
+  rejected: { bg: "#FEF2F2", color: "#DC2626", label: "Rejected" },
+  shortlisted: { bg: "#F0FDF4", color: "#16A34A", label: "Shortlisted" },
+  pending:  { bg: "#FFFBEB", color: "#D97706", label: "Pending" },
+};
+
+const AppliedJobCards = ({
+  jobsData = [],
+  searchText,
+  location,
+  jobType,
+  salaryRange,
+}) => {
   const [openModal, setOpenModal] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
   const [pageIndex, setPageIndex] = useState(0);
 
-  // Filter logic - real-time filtering
+  // ✅ Flatten applied job response — job is nested inside each item
   const filteredJobs = useMemo(() => {
-    setPageIndex(0); // Reset to first page on filter change
-    return jobsData.filter((job) => {
+    setPageIndex(0);
+
+    return jobsData.filter((item) => {
+      const job = item.job || {};
+
       if (searchText) {
         const searchLower = searchText.toLowerCase();
         const matchesSearch =
@@ -32,12 +47,13 @@ const JobCard = ({ jobsData = [], searchText, location, jobType, salaryRange }) 
       }
 
       if (jobType) {
-        const jobTypeLower = jobType.toLowerCase();
-        const matchesJobType = job.employment_type?.toLowerCase().includes(jobTypeLower);
+        const matchesJobType = job.employment_type
+          ?.toLowerCase()
+          .includes(jobType.toLowerCase());
         if (!matchesJobType) return false;
       }
 
-      if (salaryRange.min || salaryRange.max) {
+      if (salaryRange?.min || salaryRange?.max) {
         const jobSalary = parseFloat(job.compensation) || 0;
         const minSalary = parseFloat(salaryRange.min) || 0;
         const maxSalary = parseFloat(salaryRange.max) || Infinity;
@@ -57,46 +73,65 @@ const JobCard = ({ jobsData = [], searchText, location, jobType, salaryRange }) 
     pageIndex * JOBS_PER_PAGE + JOBS_PER_PAGE
   );
 
-  const handlePrev = () => {
-    if (canGoPrev) setPageIndex((p) => p - 1);
-  };
-
-  const handleNext = () => {
-    if (canGoNext) setPageIndex((p) => p + 1);
-  };
-
   return (
     <div className="flex flex-col min-h-[400px]">
       {filteredJobs.length === 0 ? (
         <div className="text-center py-20">
-          <p className="text-gray-500 text-lg">No jobs found matching your criteria</p>
+          <p className="text-gray-500 text-lg">No applied jobs found</p>
           <p className="text-gray-400 text-sm mt-2">Try adjusting your filters</p>
         </div>
       ) : (
         <>
           {/* Job Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-4">
-            {paginatedJobs.map((job, index) => {
+            {paginatedJobs.map((item, index) => {
+              // ✅ Destructure from nested structure
               const {
-                agency_profile,
+                application_id,
+                application_uuid,
+                status,
+                applied_at,
+                job = {},
+              } = item;
+
+              const {
+                uuid,
                 job_title,
                 job_description,
                 employment_type,
                 city,
                 compensation,
-                uuid,
+                audition_location,
+                agency,
               } = job;
 
-              const companyName = agency_profile?.company_name || "Unknown Agency";
+              // ✅ Agency name from agency.first_name + agency.last_name
+              const agencyName = agency
+                ? `${agency.first_name} ${agency.last_name}`
+                : "Unknown Agency";
+
               const rateText = compensation ? ` $${compensation}` : "Not disclosed";
               const tags = [employment_type, city].filter(Boolean);
               const color = "#7C3AED";
 
+              // ✅ Format applied date
+              const appliedDate = applied_at
+                ? new Date(applied_at).toLocaleDateString("en-IN", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })
+                : "Recently";
+
+              // ✅ Status badge style
+              const statusStyle =
+                STATUS_STYLES[status?.toLowerCase()] || STATUS_STYLES["applied"];
+
               return (
                 <div
-                  key={uuid || index}
+                  key={application_uuid || index}
                   className="bg-white rounded-[22px] shadow-[0px_12px_30px_rgba(0,0,0,0.08)] font-inter
-                             h-[360px] flex flex-col overflow-hidden"
+                             h-[380px] flex flex-col overflow-hidden"
                 >
                   <div className="p-[22px] flex-1 flex flex-col">
                     {/* Header */}
@@ -107,15 +142,26 @@ const JobCard = ({ jobsData = [], searchText, location, jobType, salaryRange }) 
                           style={{ backgroundColor: color }}
                         />
                         <span className="text-[14px] font-semibold text-black truncate">
-                          {companyName}
+                          {agencyName}
                         </span>
                       </div>
-                      {/* <button className="px-[10px] py-[4px] rounded-[6px] text-[11px] border border-[#ddd] text-black">
-                        Save
-                      </button> */}
+
+                      {/* ✅ Status Badge */}
+                      <span
+                        className="px-[10px] py-[4px] rounded-[6px] text-[11px] font-semibold"
+                        style={{
+                          backgroundColor: statusStyle.bg,
+                          color: statusStyle.color,
+                        }}
+                      >
+                        {statusStyle.label}
+                      </span>
                     </div>
 
-                    <p className="text-[11px] text-[#888] mt-[10px]">Posted Recently</p>
+                    {/* ✅ Applied date */}
+                    <p className="text-[11px] text-[#888] mt-[10px]">
+                      Applied on {appliedDate}
+                    </p>
 
                     <h2 className="text-[20px] font-extrabold leading-[1.2] mt-[10px] mb-[6px] line-clamp-2">
                       {job_title}
@@ -144,9 +190,9 @@ const JobCard = ({ jobsData = [], searchText, location, jobType, salaryRange }) 
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="text-[16px] font-bold">{rateText}</div>
+                        {/* ✅ Show audition location */}
                         <div className="text-[11px] text-[#888] mt-[2px] leading-[1.4]">
-                          Free lunch <br />
-                          Health Insurance
+                          {audition_location || city || "Location N/A"}
                         </div>
                       </div>
                       <button
@@ -170,41 +216,27 @@ const JobCard = ({ jobsData = [], searchText, location, jobType, salaryRange }) 
           {/* Pagination Controls */}
           {totalPages > 1 && (
             <div className="mt-12 pt-8 border-t border-gray-200 flex items-center justify-between gap-6 px-4">
-              {/* Previous Button */}
               <button
-                onClick={handlePrev}
+                onClick={() => canGoPrev && setPageIndex((p) => p - 1)}
                 disabled={!canGoPrev}
                 className={`flex items-center gap-3 text-xs tracking-[0.18em] uppercase ${
                   !canGoPrev ? "opacity-40 cursor-not-allowed" : "cursor-pointer"
                 }`}
               >
                 <span className="inline-flex h-10 w-10 items-center justify-center border border-black">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                  >
-                    <path
-                      d="M15 18l-6-6 6-6"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M15 18l-6-6 6-6" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </span>
                 <span className="text-[11px]">Previous</span>
               </button>
 
-              {/* Page Indicator */}
               <span className="text-[11px] tracking-[0.18em] uppercase text-gray-500">
                 {pageIndex + 1} / {totalPages}
               </span>
 
-              {/* Next Button */}
               <button
-                onClick={handleNext}
+                onClick={() => canGoNext && setPageIndex((p) => p + 1)}
                 disabled={!canGoNext}
                 className={`flex items-center gap-3 text-xs tracking-[0.18em] uppercase ${
                   !canGoNext ? "opacity-40 cursor-not-allowed" : "cursor-pointer"
@@ -212,19 +244,8 @@ const JobCard = ({ jobsData = [], searchText, location, jobType, salaryRange }) 
               >
                 <span className="text-[11px]">Next</span>
                 <span className="inline-flex h-10 w-10 items-center justify-center border border-black">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                  >
-                    <path
-                      d="M9 6l6 6-6 6"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M9 6l6 6-6 6" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </span>
               </button>
@@ -236,7 +257,8 @@ const JobCard = ({ jobsData = [], searchText, location, jobType, salaryRange }) 
       <BlankModal
         isOpen={openModal}
         job={selectedJob}
-        isApplied={false}
+        isApplied={true}
+
         onClose={() => {
           setOpenModal(false);
           setSelectedJob(null);
@@ -246,4 +268,4 @@ const JobCard = ({ jobsData = [], searchText, location, jobType, salaryRange }) 
   );
 };
 
-export default JobCard;
+export default AppliedJobCards;

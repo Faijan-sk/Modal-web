@@ -18,6 +18,7 @@
   import PrivacyPolicy from '../pages/termsAndCondition/PrivacyPolicy'
   import ChildPrivacyPolicy from "./../pages/termsAndCondition/ChildSafetyPolicy"
   import DeleteAccount from '../pages/DeleteAccount.jsx'
+  import ModalListingForAgency from "../pages/castingJobs/ModalListing.jsx"
   const NotFound = () => <div>404 - Page not found</div>
 
   const AppRouter = () => {
@@ -47,6 +48,11 @@
             <Route path='/privacy-policy' element={<PrivacyPolicy />} />
             <Route path='/child-safety-policy' element={<ChildPrivacyPolicy />} />
             <Route path='/delete-account' element={<DeleteAccount />} />
+           <Route 
+  path='/model-listing/:jobUid' 
+  element={<ModalListingForAgency key={window.location.pathname} />} 
+/>
+            
           
             <Route path="*" element={<NotFound />} />
           </Routes>

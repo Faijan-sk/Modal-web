@@ -5,7 +5,7 @@ import jwtDefaultConfig from './jwtDefaultConfig'
 // PRODUCTION GCP Configuration - PORT 8080 add kiya gaya hai
 axios.defaults.baseURL = 'http://35.192.79.35/api/'
 // axios.defaults.baseURL = 'https://locktrust.xyz/drakeapi'
-// axios.defaults.baseURL = 'http://192.168.1.23:8005'
+// axios.defaults.baseURL = 'http://192.168.1.17:8005'
 
 
 // axios.defaults.baseURL = 'http://34.71.120.171:8080/'
@@ -315,6 +315,26 @@ getOwnCreatedJobs(){
 
 deleteAccount(){
   return axios.delete(this.jwtConfig.deleteAccountEndpoint)
+}
+
+getAppliedJobs(){
+  return axios.get(this.jwtConfig.getAppliedJobs)
+}
+
+getAppliacantsList(uid){
+  return axios.get(this.jwtConfig.getApplicantsEndpoint
+    .replace('jobUid',uid)
+  )
+}
+
+
+deleteJob(uid){
+  return axios.delete(this.jwtConfig.deleteJobForCasting.replace('uid',uid))
+}
+
+
+updateJob(uid, payload){
+  return axios.put(this.jwtConfig.deleteJobForCasting.replace('{uid}', uid), payload)
 }
 
 }

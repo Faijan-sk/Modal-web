@@ -93,13 +93,13 @@ function PhysicalAttributesForm({ onSubmitSuccess, gender }) {
     }
 
     const payload = {
-      height: formData.height.trim(),
-      weight: formData.weight.trim(),
-      chest_bust: formData.chest_bust.trim(),
-      waist: formData.waist.trim(),
-      hips: formData.hips.trim(),
-      shoulder: formData.shoulder.trim(),
-      shoe_size: formData.shoe_size.trim(),
+      height: formData.height.toString().trim(),
+      weight: formData.weight.toString().trim(),
+      chest_bust: formData.chest_bust.toString().trim(),
+      waist: formData.waist.toString().trim(),
+      hips: formData.hips.toString().trim(),
+      shoulder: formData.shoulder.toString().trim(),
+      shoe_size: formData.shoe_size.toString().trim(),
       complexion: formData.complexion.trim(),
       eye_color: formData.eye_color.trim(),
       hair_color: formData.hair_color.trim(),
@@ -119,8 +119,10 @@ function PhysicalAttributesForm({ onSubmitSuccess, gender }) {
 
       const response = await useJwt.physicalAttributeSet(payload);
 
-      if (onSubmitSuccess) {
-        onSubmitSuccess(response?.data || payload);
+      if (response.status === 200 || response.status === 201) {
+        if (onSubmitSuccess) {
+          onSubmitSuccess(response?.data?.data || response?.data || payload);
+        }
       }
     } catch (error) {
       setApiError(
@@ -137,30 +139,29 @@ function PhysicalAttributesForm({ onSubmitSuccess, gender }) {
     const fetchFormData = async () => {
       try {
         const response = await useJwt.getPhysicalAttribute();
+        const data = response?.data?.data || response?.data;
 
-        if (response?.data) {
-          setFormData((prev) => ({
-            ...prev,
-            height: response.data.height || "",
-            weight: response.data.weight || "",
-            chest_bust: response.data.chest_bust || "",
-            waist: response.data.waist || "",
-            hips: response.data.hips || "",
-            shoulder: response.data.shoulder || "",
-            shoe_size: response.data.shoe_size || "",
-            eye_color: response.data.eye_color || "",
-            hair_color: response.data.hair_color || "",
-            complexion: response.data.complexion || "",
-            tattoos_piercings: response.data.tattoos_piercings || false,
-            tattoos_details: response.data.tattoos_details || "",
-            body_type: response.data.body_type || "",
-            suit_jacket_dress_size:
-              response.data.suit_jacket_dress_size || "",
-            facial_hair: response.data.facial_hair || "",
-            bust_cup_size: response.data.bust_cup_size || "",
-            hair_length: response.data.hair_length || "",
-            body_shape: response.data.body_shape || "",
-          }));
+        if (data) {
+          setFormData({
+            height: data.height || "",
+            weight: data.weight || "",
+            chest_bust: data.chest_bust || "",
+            waist: data.waist || "",
+            hips: data.hips || "",
+            shoulder: data.shoulder || "",
+            shoe_size: data.shoe_size || "",
+            eye_color: data.eye_color || "",
+            hair_color: data.hair_color || "",
+            complexion: data.complexion || "",
+            tattoos_piercings: data.tattoos_piercings === true || data.tattoos_piercings === 1,
+            tattoos_details: data.tattoos_details || "",
+            body_type: data.body_type || "",
+            suit_jacket_dress_size: data.suit_jacket_dress_size || "",
+            facial_hair: data.facial_hair || "",
+            bust_cup_size: data.bust_cup_size || "",
+            hair_length: data.hair_length || "",
+            body_shape: data.body_shape || "",
+          });
         }
       } catch (err) {
         console.error("Error fetching physical attributes:", err);
@@ -187,7 +188,6 @@ function PhysicalAttributesForm({ onSubmitSuccess, gender }) {
 
       {/* Row 1: Height + Weight */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Height */}
         <div>
           <label className="text-sm font-medium mb-1 text-gray-700 block">
             Height <span className="text-xs text-gray-500">(cm / ft-in)</span>
@@ -205,7 +205,6 @@ function PhysicalAttributesForm({ onSubmitSuccess, gender }) {
           )}
         </div>
 
-        {/* Weight */}
         <div>
           <label className="text-sm font-medium mb-1 text-gray-700 block">
             Weight <span className="text-xs text-gray-500">(kg)</span>
@@ -226,7 +225,6 @@ function PhysicalAttributesForm({ onSubmitSuccess, gender }) {
 
       {/* Row 2: Chest/Bust + Waist */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Chest/Bust */}
         <div>
           <label className="text-sm font-medium mb-1 text-gray-700 block">
             {isFemale ? "Bust" : "Chest"}{" "}
@@ -245,7 +243,6 @@ function PhysicalAttributesForm({ onSubmitSuccess, gender }) {
           )}
         </div>
 
-        {/* Waist */}
         <div>
           <label className="text-sm font-medium mb-1 text-gray-700 block">
             Waist <span className="text-xs text-gray-500">(inches)</span>
@@ -266,7 +263,6 @@ function PhysicalAttributesForm({ onSubmitSuccess, gender }) {
 
       {/* Row 3: Hips + Shoulder */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Hips */}
         <div>
           <label className="text-sm font-medium mb-1 text-gray-700 block">
             Hips <span className="text-xs text-gray-500">(inches)</span>
@@ -284,7 +280,6 @@ function PhysicalAttributesForm({ onSubmitSuccess, gender }) {
           )}
         </div>
 
-        {/* Shoulder */}
         <div>
           <label className="text-sm font-medium mb-1 text-gray-700 block">
             Shoulder <span className="text-xs text-gray-500">(inches)</span>
@@ -303,7 +298,7 @@ function PhysicalAttributesForm({ onSubmitSuccess, gender }) {
         </div>
       </div>
 
-      {/* Row 4: Shoe Size (full width) */}
+      {/* Row 4: Shoe Size */}
       <div>
         <label className="text-sm font-medium mb-1 text-gray-700 block">
           Shoe Size
@@ -323,7 +318,6 @@ function PhysicalAttributesForm({ onSubmitSuccess, gender }) {
 
       {/* Row 5: Eye Color + Hair Color */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Eye Color */}
         <div>
           <label className="text-sm font-medium mb-1 text-gray-700 block">
             Eye Color
@@ -348,7 +342,6 @@ function PhysicalAttributesForm({ onSubmitSuccess, gender }) {
           )}
         </div>
 
-        {/* Hair Color */}
         <div>
           <label className="text-sm font-medium mb-1 text-gray-700 block">
             Hair Color
@@ -376,7 +369,6 @@ function PhysicalAttributesForm({ onSubmitSuccess, gender }) {
 
       {/* Row 6: Complexion + Body Type */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Complexion */}
         <div>
           <label className="text-sm font-medium mb-1 text-gray-700 block">
             Complexion
@@ -400,7 +392,6 @@ function PhysicalAttributesForm({ onSubmitSuccess, gender }) {
           )}
         </div>
 
-        {/* Body Type */}
         <div>
           <label className="text-sm font-medium mb-1 text-gray-700 block">
             Body Type
@@ -426,7 +417,6 @@ function PhysicalAttributesForm({ onSubmitSuccess, gender }) {
 
       {/* Row 7: Hair Length + Body Shape */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Hair Length */}
         <div>
           <label className="text-sm font-medium mb-1 text-gray-700 block">
             Hair Length
@@ -450,13 +440,10 @@ function PhysicalAttributesForm({ onSubmitSuccess, gender }) {
           )}
         </div>
 
-        {/* Body Shape */}
         <div>
           <label className="text-sm font-medium mb-1 text-gray-700 block">
             Body Shape
-            <span className="text-xs text-gray-500 ml-1">
-              (Face / body shape)
-            </span>
+            <span className="text-xs text-gray-500 ml-1">(Face / body shape)</span>
           </label>
           <select
             name="body_shape"
@@ -493,9 +480,7 @@ function PhysicalAttributesForm({ onSubmitSuccess, gender }) {
           className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-primary focus:ring-1 focus:ring-primary outline-none"
         />
         {errors.suit_jacket_dress_size && (
-          <p className="mt-1 text-xs text-red-500">
-            {errors.suit_jacket_dress_size}
-          </p>
+          <p className="mt-1 text-xs text-red-500">{errors.suit_jacket_dress_size}</p>
         )}
       </div>
 
@@ -539,9 +524,7 @@ function PhysicalAttributesForm({ onSubmitSuccess, gender }) {
             className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-primary focus:ring-1 focus:ring-primary outline-none"
           />
           {errors.bust_cup_size && (
-            <p className="mt-1 text-xs text-red-500">
-              {errors.bust_cup_size}
-            </p>
+            <p className="mt-1 text-xs text-red-500">{errors.bust_cup_size}</p>
           )}
         </div>
       )}
@@ -569,9 +552,7 @@ function PhysicalAttributesForm({ onSubmitSuccess, gender }) {
           <div>
             <label className="text-sm font-medium mb-1 text-gray-700 block">
               Tattoos or Piercings Details
-              <span className="text-xs text-gray-500 ml-1">
-                (describe with locations)
-              </span>
+              <span className="text-xs text-gray-500 ml-1">(describe with locations)</span>
             </label>
             <textarea
               name="tattoos_details"
@@ -582,15 +563,12 @@ function PhysicalAttributesForm({ onSubmitSuccess, gender }) {
               className="border border-gray-300 rounded-lg px-3 py-2 w-full resize-y focus:border-primary focus:ring-1 focus:ring-primary outline-none"
             />
             {errors.tattoos_details && (
-              <p className="mt-1 text-xs text-red-500">
-                {errors.tattoos_details}
-              </p>
+              <p className="mt-1 text-xs text-red-500">{errors.tattoos_details}</p>
             )}
           </div>
         )}
       </div>
 
-      {/* Submit Button */}
       <button
         type="submit"
         disabled={isSubmitting}

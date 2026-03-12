@@ -17,6 +17,7 @@ export default {
   professionalFormEndpoint : '/model/professional',
   ProfileMediaSetEndpoint: 'model/media/upload',
   deleteAccountEndpoint : '/auth/delete-account',
+
   
 
 /*
@@ -41,9 +42,8 @@ getPublicModalByuid : '/public/models/details/{uuid}',
 * casting Company 
 */
 completeCastingCompanyProfileEndpoint: '/agency/create',
-getJobsEndpoint : '',
-
-
+getApplicantsEndpoint : '/job-management/my-jobs/{jobUid}/applicants',
+deleteJobForCasting : '/agency/job/{uid}',
 
 // get Jobs
 
@@ -51,8 +51,8 @@ getAllJobsList:'/agency/job/post',
 jobDetailsById : '/agency/jobposting/',
 jobApplyEndpoint : '/applications/',
 createJobEndpoint : 'agency/job/post',
-getCreatedJobs: '/agency/job/post'
-
+getCreatedJobs: '/job-management/my-jobs',
+getAppliedJobs : '/model/applied-jobs'
 
 
 }

@@ -12,18 +12,14 @@ export const AuthProvider = ({ children }) => {
     // const navigate=useNavigate()
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            try {
-                setUser(JSON.parse(storedUser));
-            } catch (e) {
-                console.error("Failed to parse user", e);
-            }
-        }else{
-            
-        }
-        setLoading(false);
-    }, []);
+    const storedUser = localStorage.getItem('user');
+    const storedProfile = localStorage.getItem('isProfileUpdated');
+
+    if (storedUser) setUser(JSON.parse(storedUser));
+    if (storedProfile === '1') setIsProfileComplite(true); // ← add karo
+
+    setLoading(false);
+}, []);
 
     const login = (data) => {
         localStorage.setItem('user', JSON.stringify(data));
@@ -31,8 +27,12 @@ export const AuthProvider = ({ children }) => {
     };
 
       const handleProfileUpload=(boo)=>{
+
 setIsProfileComplite(boo)
+
 if(boo)localStorage.setItem('isProfileUpdated','1')
+
+    
 else localStorage.removeItem('isProfileUpdated')
     }
 

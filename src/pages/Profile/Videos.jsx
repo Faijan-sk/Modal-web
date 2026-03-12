@@ -21,9 +21,16 @@ function Post() {
   const fetchPosts = async () => {
     try {
       const res = await useJwt.getVideoForProfile();
+      
       const data = res?.data;
-      const normalized = Array.isArray(data) ? data : data ? [data] : [];
-      setPosts(normalized);
+      // console.log('get video', data.videos)
+      
+      // Update: Extract the 'videos' array specifically from the response
+      if (data && Array.isArray(data.videos)) {
+        setPosts(data.videos);
+      } else {
+        setPosts([]);
+      }
     } catch (err) {
       console.error("Error fetching posts:", err);
     }
@@ -39,13 +46,11 @@ function Post() {
     if (!file) return;
 
     if (!file.type.startsWith("video/")) {
-      // alert("Please select a video file.");
       return;
     }
 
     const MAX_BYTES = 200 * 1024 * 1024;
     if (file.size > MAX_BYTES) {
-      // alert("File too large. Maximum allowed size is 200MB.");
       return;
     }
 
@@ -68,11 +73,9 @@ function Post() {
       const errorMsg = err?.response?.data?.detail;
       const statusCode = err?.response?.status;
 
-      // ✅ VIDEO LIMIT / SUBSCRIPTION EXPIRED
       if (
         statusCode === 403 ||
-        errorMsg ===
-          "You already have a video. Take subscription for more videos." ||
+        errorMsg === "You already have a video. Take subscription for more videos." ||
         errorMsg === "Subscribe to add more videos"
       ) {
         setIsLimitModalOpen(true);
@@ -82,7 +85,6 @@ function Post() {
     }
   };
 
-  // ==================== OPEN FILE PICKER ====================
   const openFilePicker = () => {
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -108,10 +110,7 @@ function Post() {
 
   const handlePlayYoutubeInput = () => {
     const embed = getYoutubeEmbedFromUrl(youtubeInput.trim());
-    if (!embed) {
-      // alert("Please enter a valid YouTube URL.");
-      return;
-    }
+    if (!embed) return;
     setYoutubeEmbedUrl(embed);
   };
 
@@ -129,7 +128,7 @@ function Post() {
       />
 
       {/* YouTube input */}
-      <div className="mb-6 p-4 rounded-lg bg-white shadow-sm">
+      {/* <div className="mb-6 p-4 rounded-lg bg-white shadow-sm">
         <label className="block mb-2 font-medium">
           Play YouTube (static)
         </label>
@@ -160,20 +159,22 @@ function Post() {
             </div>
           </div>
         )}
-      </div>
+      </div> */}
 
       {/* Video List */}
       <div className="space-y-6">
         {posts.slice(0, visibleCount).map((post, i) => {
-          if (!post?.video && !post?.youtubeLink) return null;
-          const url = post.youtubeLink ?? post.video;
-          const embed = isYoutubeUrl(url);
+          // Update: The API uses post.url instead of post.video
+          const videoSource = post.url;
+          if (!videoSource) return null;
+
+          const embed = isYoutubeUrl(videoSource);
 
           return embed ? (
             <div key={i} className="rounded-xl overflow-hidden shadow-xl">
               <div className="relative pb-[56.25%]">
                 <iframe
-                  src={getYoutubeEmbedFromUrl(url)}
+                  src={getYoutubeEmbedFromUrl(videoSource)}
                   title={`yt-${i}`}
                   allowFullScreen
                   className="absolute inset-0 w-full h-full"
@@ -183,7 +184,7 @@ function Post() {
           ) : (
             <div key={i} className="rounded-xl overflow-hidden shadow-xl">
               <video
-                src={post.video}
+                src={videoSource}
                 controls
                 className="w-full bg-black"
               />
@@ -210,6 +211,18 @@ function Post() {
           )}
         </button>
       </div>
+
+      {/* View More Button */}
+      {posts.length > visibleCount && (
+        <div className="text-center my-4">
+          <button 
+            onClick={handleViewMore}
+            className="px-6 py-2 bg-gray-200 rounded-full hover:bg-gray-300 transition"
+          >
+            View More
+          </button>
+        </div>
+      )}
 
       {/* ==================== SUBSCRIPTION MODAL ==================== */}
       {isLimitModalOpen && (

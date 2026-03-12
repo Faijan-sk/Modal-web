@@ -1,14 +1,13 @@
 // src/pages/signUp/ProfessionalInfoForm.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import useJwt from "../../endpoints/jwt/useJwt";
 
-/** Reusable TagInput with gradient */
 function TagInput({
   name,
   label,
   helperText,
   placeholder,
-  values,
+  values = [],
   onChange,
   error,
 }) {
@@ -16,10 +15,7 @@ function TagInput({
 
   const addTag = (tag) => {
     const value = tag.trim();
-    if (!value) return;
-
-    if (values.includes(value)) return;
-
+    if (!value || values.includes(value)) return;
     onChange(name, [...values, value]);
     setInputValue("");
   };
@@ -31,38 +27,23 @@ function TagInput({
     }
   };
 
-  const handleBlur = () => {
-    if (inputValue.trim()) addTag(inputValue);
-  };
-
-  const removeTag = (tag) => {
-    onChange(
-      name,
-      values.filter((t) => t !== tag)
-    );
-  };
-
   return (
     <div>
       <label className="text-sm font-medium mb-1 text-gray-700 block">
         {label}
-        {helperText && (
-          <span className="text-xs text-gray-500 ml-1">{helperText}</span>
-        )}
+        {helperText && <span className="text-xs text-gray-500 ml-1">{helperText}</span>}
       </label>
 
-      <div className="border border-gray-300 rounded-lg px-2 py-2 w-full flex flex-wrap items-center gap-2 bg-white focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
+      <div className={`border rounded-lg px-2 py-2 w-full flex flex-wrap items-center gap-2 bg-white focus-within:ring-1 focus-within:ring-primary ${error ? 'border-red-500' : 'border-gray-300 focus-within:border-primary'}`}>
         {values.map((tag) => (
           <span
             key={tag}
-            className="flex items-center gap-1 rounded-full px-3 py-1 text-xs 
-                       bg-gradient-to-r from-primary/80 to-white 
-                       text-primary font-medium shadow border border-primary/30"
+            className="flex items-center gap-1 rounded-full px-3 py-1 text-xs bg-gradient-to-r from-primary/80 to-white text-primary font-medium shadow border border-primary/30"
           >
             {tag}
             <button
               type="button"
-              onClick={() => removeTag(tag)}
+              onClick={() => onChange(name, values.filter((t) => t !== tag))}
               className="text-primary text-[10px] leading-none ml-1 hover:opacity-70"
             >
               ✕
@@ -77,11 +58,10 @@ function TagInput({
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          onBlur={handleBlur}
+          onBlur={() => inputValue.trim() && addTag(inputValue)}
         />
       </div>
-
-      {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+      {error && <p className="mt-1 text-[11px] text-red-500">{error}</p>}
     </div>
   );
 }
@@ -92,148 +72,33 @@ function ProfessionalInfoForm({ onSubmitSuccess }) {
     experience_details: "",
     languages: [],
     skills: [],
-    other_skills: [],
     interested_categories: [],
-    other_interested_categories: [],
     willing_to_travel: "",
   });
 
   const [errors, setErrors] = useState({});
   const [apiError, setApiError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const hasFetched = useRef(false);
 
-  const handleSimpleChange = (e) => {
-    const { name, value } = e.target;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    if (name === "professional_experience" && value === "no") {
-      setFormData((prev) => ({
-        ...prev,
-        experience_details: "",
-      }));
-    }
-
-    setErrors((prev) => ({
-      ...prev,
-      [name]: "",
-    }));
-    setApiError("");
-  };
-
-  const handleTagChange = (name, values) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: values,
-    }));
-
-    setErrors((prev) => ({
-      ...prev,
-      [name]: "",
-    }));
-    setApiError("");
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const newErrors = {};
-
-    const requiredFields = [
-      "languages",
-      "skills",
-      "interested_categories",
-      "professional_experience",
-      "willing_to_travel",
-    ];
-
-    requiredFields.forEach((field) => {
-      const value = formData[field];
-
-      if (Array.isArray(value)) {
-        if (value.length === 0) {
-          newErrors[field] = "This field is required.";
-        }
-      } else {
-        if (!value || String(value).trim() === "") {
-          newErrors[field] = "This field is required.";
-        }
-      }
-    });
-
-    if (formData.professional_experience === "yes") {
-      if (
-        !formData.experience_details ||
-        formData.experience_details.trim() === ""
-      ) {
-        newErrors.experience_details =
-          "Please describe your experience.";
-      }
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    const payload = {
-      professional_experience:
-        formData.professional_experience === "yes",
-      experience_details: formData.experience_details.trim(),
-      languages: formData.languages,
-      other_languages: formData.other_languages,
-      skills: formData.skills,
-      other_skills: formData.other_skills,
-      interested_categories: formData.interested_categories,
-      other_interested_categories:
-        formData.other_interested_categories,
-      willing_to_travel: formData.willing_to_travel === "yes",
-    };
-
-    try {
-      setIsSubmitting(true);
-      setApiError("");
-
-      const response = await useJwt.professionalFormSet(payload);
-
-      if (onSubmitSuccess) {
-        onSubmitSuccess(response?.data || payload);
-      }
-    } catch (error) {
-      setApiError(
-        error?.response?.data?.message ||
-          "Something went wrong while saving professional info."
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // ✅ PREFILL DATA (ADDED – NO EXISTING LINE REMOVED)
   useEffect(() => {
+    if (hasFetched.current) return; 
+    
     const fetchProfessionalInfo = async () => {
       try {
         const response = await useJwt.getProfessionalInfo();
-
         if (response?.data) {
-          setFormData((prev) => ({
-            ...prev,
-            professional_experience: response.data.professional_experience
-              ? "yes"
-              : "no",
-            experience_details:
-              response.data.experience_details || "",
-            languages: response.data.languages || [],
-            skills: response.data.skills || [],
-            interested_categories:
-              response.data.interested_categories || [],
-            willing_to_travel: response.data.willing_to_travel
-              ? "yes"
-              : "no",
-          }));
+          const d = response.data;
+          setFormData({
+            professional_experience: d.professional_experience === true ? "yes" : d.professional_experience === false ? "no" : "",
+            experience_details: d.experience_details || "",
+            languages: Array.isArray(d.languages) ? d.languages : [],
+            skills: Array.isArray(d.skills) ? d.skills : [],
+            interested_categories: Array.isArray(d.interested_categories) ? d.interested_categories : [],
+            willing_to_travel: d.willing_to_travel === true ? "yes" : d.willing_to_travel === false ? "no" : "",
+          });
+          hasFetched.current = true;
         }
       } catch (err) {
         console.error("Error fetching professional info:", err);
@@ -243,11 +108,66 @@ function ProfessionalInfoForm({ onSubmitSuccess }) {
     fetchProfessionalInfo();
   }, []);
 
+  const handleSimpleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+      ...(name === "professional_experience" && value === "no" ? { experience_details: "" } : {}),
+    }));
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: "" }));
+    setApiError("");
+  };
+
+  const handleTagChange = useCallback((name, values) => {
+    setFormData((prev) => ({ ...prev, [name]: values }));
+    setErrors(prev => ({ ...prev, [name]: "" }));
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const newErrors = {};
+
+    if (!formData.professional_experience) newErrors.professional_experience = "Required.";
+    if (formData.professional_experience === "yes" && !formData.experience_details?.trim()) {
+      newErrors.experience_details = "Details are required.";
+    }
+    if (!formData.willing_to_travel) newErrors.willing_to_travel = "Required.";
+    ["languages", "skills", "interested_categories"].forEach(f => {
+      if (!formData[f] || formData[f].length === 0) newErrors[f] = "Add at least one item.";
+    });
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    const payload = {
+      professional_experience: formData.professional_experience === "yes",
+      experience_details: formData.experience_details.trim(),
+      languages: formData.languages,
+      skills: formData.skills,
+      interested_categories: formData.interested_categories,
+      willing_to_travel: formData.willing_to_travel === "yes",
+    };
+
+    try {
+      setIsSubmitting(true);
+      setApiError("");
+      const response = await useJwt.professionalFormSet(payload);
+      if(response.status == 201 || response.status ==200){
+if (onSubmitSuccess) onSubmitSuccess(response.data);
+      }
+      
+    } catch (error) {
+      setApiError(error?.response?.data?.message || "Server error. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="w-full max-w-3xl space-y-6 bg-white"
-    >
+    <form onSubmit={handleSubmit} className="w-full max-w-3xl space-y-6 bg-white">
       <h2 className="text-lg font-semibold tracking-[0.16em] uppercase text-gray-800">
         Professional Information
       </h2>
@@ -258,106 +178,54 @@ function ProfessionalInfoForm({ onSubmitSuccess }) {
         </p>
       )}
 
-      {/* Professional Experience */}
       <div>
-        <label className="text-sm font-medium mb-1 text-gray-700 block">
-          Do you have prior professional experience?
-        </label>
-        <div className="flex gap-4 border border-gray-300 rounded-lg px-3 py-2 bg-white">
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="radio"
-              name="professional_experience"
-              value="yes"
-              checked={formData.professional_experience === "yes"}
-              onChange={handleSimpleChange}
-            />
-            Yes
+        <label className="text-sm font-medium mb-1 text-gray-700 block">Prior professional experience?</label>
+        <div className={`flex gap-4 border rounded-lg px-3 py-2 bg-white ${errors.professional_experience ? 'border-red-500' : 'border-gray-300'}`}>
+          <label className="flex items-center gap-2 text-sm cursor-pointer">
+            <input type="radio" name="professional_experience" value="yes" checked={formData.professional_experience === "yes"} onChange={handleSimpleChange} /> Yes
           </label>
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="radio"
-              name="professional_experience"
-              value="no"
-              checked={formData.professional_experience === "no"}
-              onChange={handleSimpleChange}
-            />
-            No
+          <label className="flex items-center gap-2 text-sm cursor-pointer">
+            <input type="radio" name="professional_experience" value="no" checked={formData.professional_experience === "no"} onChange={handleSimpleChange} /> No
           </label>
         </div>
+        {errors.professional_experience && <p className="mt-1 text-[11px] text-red-500">{errors.professional_experience}</p>}
       </div>
 
       {formData.professional_experience === "yes" && (
         <div>
-          <label className="text-sm font-medium mb-1 text-gray-700 block">
-            Experience Details
-          </label>
+          <label className="text-sm font-medium mb-1 text-gray-700 block">Experience Details</label>
           <textarea
             name="experience_details"
             rows={3}
             value={formData.experience_details}
             onChange={handleSimpleChange}
-            className="border border-gray-300 rounded-lg px-3 py-2 w-full"
+            className={`border rounded-lg px-3 py-2 w-full text-sm outline-none focus:ring-1 focus:ring-primary ${errors.experience_details ? 'border-red-500' : 'border-gray-300'}`}
           />
+          {errors.experience_details && <p className="mt-1 text-[11px] text-red-500">{errors.experience_details}</p>}
         </div>
       )}
 
-      <TagInput
-        name="interested_categories"
-        label="Interested Categories"
-        placeholder="Fashion, Commercial..."
-        values={formData.interested_categories}
-        onChange={handleTagChange}
-      />
-
-      <TagInput
-        name="languages"
-        label="Languages"
-        placeholder="English, Spanish..."
-        values={formData.languages}
-        onChange={handleTagChange}
-      />
-
-      <TagInput
-        name="skills"
-        label="Skills"
-        placeholder="Acting, Dancing..."
-        values={formData.skills}
-        onChange={handleTagChange}
-      />
+      <TagInput name="interested_categories" label="Interested Categories" placeholder="Fashion, Commercial..." values={formData.interested_categories} onChange={handleTagChange} error={errors.interested_categories} />
+      <TagInput name="languages" label="Languages" placeholder="English, French..." values={formData.languages} onChange={handleTagChange} error={errors.languages} />
+      <TagInput name="skills" label="Skills" placeholder="Acting, Dancing..." values={formData.skills} onChange={handleTagChange} error={errors.skills} />
 
       <div>
-        <label className="text-sm font-medium mb-1 text-gray-700 block">
-          Are you willing to travel?
-        </label>
-        <div className="flex gap-4 border border-gray-300 rounded-lg px-3 py-2 bg-white">
-          <label>
-            <input
-              type="radio"
-              name="willing_to_travel"
-              value="yes"
-              checked={formData.willing_to_travel === "yes"}
-              onChange={handleSimpleChange}
-            />
-            Yes
+        <label className="text-sm font-medium mb-1 text-gray-700 block">Willing to travel?</label>
+        <div className={`flex gap-4 border rounded-lg px-3 py-2 bg-white ${errors.willing_to_travel ? 'border-red-500' : 'border-gray-300'}`}>
+          <label className="flex items-center gap-2 text-sm cursor-pointer">
+            <input type="radio" name="willing_to_travel" value="yes" checked={formData.willing_to_travel === "yes"} onChange={handleSimpleChange} /> Yes
           </label>
-          <label>
-            <input
-              type="radio"
-              name="willing_to_travel"
-              value="no"
-              checked={formData.willing_to_travel === "no"}
-              onChange={handleSimpleChange}
-            />
-            No
+          <label className="flex items-center gap-2 text-sm cursor-pointer">
+            <input type="radio" name="willing_to_travel" value="no" checked={formData.willing_to_travel === "no"} onChange={handleSimpleChange} /> No
           </label>
         </div>
+        {errors.willing_to_travel && <p className="mt-1 text-[11px] text-red-500">{errors.willing_to_travel}</p>}
       </div>
 
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full py-2 bg-black text-white rounded-lg"
+        className="w-full py-2 bg-black text-white rounded-lg font-medium hover:bg-gray-800 disabled:bg-gray-400 transition-colors"
       >
         {isSubmitting ? "Saving..." : "Save Professional Info"}
       </button>

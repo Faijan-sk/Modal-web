@@ -144,7 +144,6 @@ const ProfilePage = () => {
       window.location.href = "/";
     } catch (err) {
       console.error("Delete failed:", err);
-      alert("Error: Account delete nahi ho paya.");
       setIsDeleting(false);
       setIsDeleteModalOpen(false);
     }

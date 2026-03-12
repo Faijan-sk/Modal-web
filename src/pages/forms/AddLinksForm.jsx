@@ -96,18 +96,18 @@ const LinkModal = ({ open, onClose, initialLinks = [], onSave }) => {
   };
 
   const handleRemove = async (platform) => {
+    const originalLinks = [...links]; // Backup for rollback
     try {
       // Pehle state se remove karo
       const updatedLinks = links.filter((l) => l.platform !== platform);
       setLinks(updatedLinks);
 
-      // Phir API ko hit karo with updated links
+      // Phir API ko hit karo with updated links (Flat object format)
       const backendPayload = convertToBackendFormat(updatedLinks);
       console.log("Removing link, sending to backend:", backendPayload);
 
       await useJwt.AddLinksToProfile(backendPayload);
 
-      // Agar onSave callback hai to call karo
       if (onSave) {
         onSave(backendPayload);
       }
@@ -119,7 +119,7 @@ const LinkModal = ({ open, onClose, initialLinks = [], onSave }) => {
         "Failed to remove link"
       );
       // Error hone par links ko wapas set kar do
-      setLinks(links);
+      setLinks(originalLinks);
     }
   };
 
@@ -147,6 +147,7 @@ const LinkModal = ({ open, onClose, initialLinks = [], onSave }) => {
       setSaving(true);
       setError(null);
 
+      // Backend expects the flat object directly
       const backendPayload = convertToBackendFormat(links);
       console.log("Sending to backend:", backendPayload);
 

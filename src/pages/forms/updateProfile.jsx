@@ -63,16 +63,13 @@ function BasicInfoForm({ onSubmitSuccess }) {
     try {
       setIsSubmitting(true);
       setApiError("");
-
       const response = await useJwt.updateProfile(payload);
       console.log("BASIC INFO API RESPONSE:", response);
-
+      console.log(response.status)
       if (onSubmitSuccess) {
         onSubmitSuccess(response?.data || payload);
-      } else {
-        console.log("BASIC INFO PAYLOAD:", payload);
-        // alert("Basic info form submitted (check console).");
       }
+
     } catch (error) {
       console.error("Error updating basic info:", error);
       setApiError(

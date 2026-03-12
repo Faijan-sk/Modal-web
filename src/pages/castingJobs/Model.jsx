@@ -27,7 +27,6 @@ const handleApply = async () => {
     setApplied(true); // ✅ success state
   } catch (error) {
     console.error("Apply failed:", error);
-    alert("Failed to apply. Please try again.");
   } finally {
     setIsApplying(false);
   }
@@ -60,9 +59,9 @@ const handleApply = async () => {
               </h1>
 
               <div className="flex items-center gap-2 mt-1 text-sm">
-                <span className="text-primary font-medium">
-                  {job.agency.company_name}
-                </span>
+                {/* <span className="text-primary font-medium">
+                  {job.agency?.company_name}
+                </span> */}
                 <svg
                   className="w-4 h-4 text-primary"
                   fill="none"

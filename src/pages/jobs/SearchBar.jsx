@@ -1,12 +1,15 @@
 // SearchBar.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Search, MapPin, Calendar, DollarSign, Crosshair } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function SearchBar({
   setSearchText,
   setLocation,
   setJobType,
   setSalaryRange,
+  isAppliedView,
+  setIsAppliedView,
 }) {
   const [activeField, setActiveField] = useState(null);
 
@@ -20,6 +23,24 @@ export default function SearchBar({
   const [salaryMin, setSalaryMin] = useState("");
   const [salaryMax, setSalaryMax] = useState("");
 
+  const [searchInputText, setSearchInputText] = useState("");
+
+  useEffect(() => {
+    setSearchText(searchInputText);
+  }, [searchInputText, setSearchText]);
+
+  useEffect(() => {
+    setLocation(locationText);
+  }, [locationText, setLocation]);
+
+  useEffect(() => {
+    setJobType(jobTypeText);
+  }, [jobTypeText, setJobType]);
+
+  useEffect(() => {
+    setSalaryRange({ min: salaryMin, max: salaryMax });
+  }, [salaryMin, salaryMax, setSalaryRange]);
+
   return (
     <div className="w-full flex items-center bg-white shadow-md rounded-3xl px-8 py-5 gap-6 relative">
 
@@ -28,9 +49,10 @@ export default function SearchBar({
         <Search size={18} className="text-gray-500" />
         <input
           type="text"
-          placeholder="Search..."
+          placeholder="Search job title, category..."
           className="bg-transparent outline-none w-full text-sm"
-          onChange={(e) => setSearchText(e.target.value)}
+          value={searchInputText}
+          onChange={(e) => setSearchInputText(e.target.value)}
         />
       </div>
 
@@ -53,7 +75,7 @@ export default function SearchBar({
 
           {!locationOpen && (
             <span className="text-gray-600 text-sm whitespace-nowrap">
-              {locationText || "San Francisco, LA"}
+              {locationText || "Location"}
             </span>
           )}
 
@@ -66,9 +88,11 @@ export default function SearchBar({
               onChange={(e) => setLocationText(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
-                  setLocation(locationText);
                   setLocationOpen(false);
                 }
+              }}
+              onBlur={() => {
+                setTimeout(() => setLocationOpen(false), 200);
               }}
             />
           )}
@@ -81,7 +105,7 @@ export default function SearchBar({
           ">
             <button
               onClick={() => {
-                // alert("Using current location...");
+                setLocationText("Current Location");
                 setLocationOpen(false);
               }}
               className="
@@ -127,9 +151,11 @@ export default function SearchBar({
               onChange={(e) => setJobTypeText(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
-                  setJobType(jobTypeText);
                   setJobTypeOpen(false);
                 }
+              }}
+              onBlur={() => {
+                setTimeout(() => setJobTypeOpen(false), 200);
               }}
             />
           )}
@@ -156,7 +182,11 @@ export default function SearchBar({
           {!salaryOpen && (
             <span className="text-gray-600 text-sm whitespace-nowrap">
               {salaryMin && salaryMax
-                ? `${salaryMin} - ${salaryMax}`
+                ? ` $${salaryMin} -  $${salaryMax}`
+                : salaryMin
+                ? ` $${salaryMin}+`
+                : salaryMax
+                ? `Up to  $${salaryMax}`
                 : "Salary Range"}
             </span>
           )}
@@ -180,9 +210,11 @@ export default function SearchBar({
                 onChange={(e) => setSalaryMax(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
-                    setSalaryRange({ min: salaryMin, max: salaryMax });
                     setSalaryOpen(false);
                   }
+                }}
+                onBlur={() => {
+                  setTimeout(() => setSalaryOpen(false), 200);
                 }}
               />
             </span>
@@ -190,15 +222,24 @@ export default function SearchBar({
         </div>
       </div>
 
-      {/* FIND JOB BUTTON */}
+      {/* APPLIED / ALL JOBS TOGGLE BUTTON */}
       <button
-        className="
-          btn-drake-outline bg-primary text-white px-8 py-3 rounded-xl
-          font-semibold hover:bg-primary/80 duration-200 whitespace-nowrap text-sm
-        "
-      >
-        Find Job
-      </button>
+  onClick={() => setIsAppliedView(!isAppliedView)}
+  className={`
+    w-auto min-w-[140px] px-6 py-3 rounded-xl font-semibold duration-200 text-sm whitespace-nowrap
+    ${isAppliedView
+      ? "btn-drake-outline bg-gray-200 text-gray-700 hover:bg-gray-300"
+      : "btn-drake-outline bg-primary text-white hover:bg-primary/80"
+    }
+  `}
+>
+  {isAppliedView ? "All Jobs" : "Applied Jobs"}
+</button>
+
+
+
+
+
 
     </div>
   );

@@ -2,7 +2,10 @@ import React, { useState } from "react";
 import { Search } from "lucide-react";
 import CreateJobsForm from "../forms/CreateJobsForm";
 
-export default function SearchBar() {
+export default function SearchBar(){
+
+
+
   const [openModal, setOpenModal] = useState(false);
   const [searchText, setSearchText] = useState("");
 
@@ -10,8 +13,18 @@ export default function SearchBar() {
     setOpenModal(false);
   };
 
+ 
+
+const handleJobCreate = () =>{
+
+
+setOpenModal(true)
+
+
+}
+
   return (
-    <div className="my-5 w-full flex items-center bg-white rounded-3xl px-20 py-5 gap-6 relative justify-center">
+    <div className="my-5 w-full flex items-center bg-white rounded-3xl px-20 py-5 gap-6 relative justify-center my-2">
 
       {/* SEARCH BOX */}
       <div className="flex items-center gap-3 w-[60%] bg-gray-100 px-4 py-3 rounded-xl">
@@ -26,11 +39,16 @@ export default function SearchBar() {
       </div>
 
       <button
-        onClick={() => setOpenModal(true)}
-        className="btn-drake-outline bg-primary text-white px-8 py-3 rounded-xl font-semibold hover:bg-primary/80 duration-200 whitespace-nowrap text-sm"
-      >
-        Create Jobs
-      </button>
+  onClick={() => handleJobCreate()}
+  className="btn-drake-outline bg-primary text-white hover:bg-primary/80 duration-200 whitespace-nowrap text-sm"
+>
+  Create Jobs
+</button>
+
+
+
+
+
 
       {/* MODAL */}
       {openModal && (

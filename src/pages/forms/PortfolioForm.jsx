@@ -92,7 +92,11 @@ function MediaUploadForm({ onSubmitSuccess }) {
         body.append("file", file);
 
         const response = await useJwt.modelMediaSet(body);
-        uploadResults[field] = response?.data || null;
+
+        if(response.status == 201 || response.status == 200){
+  uploadResults[field] = response?.data || null;
+        }
+      
       }
 
       if (onSubmitSuccess) {

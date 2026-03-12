@@ -23,37 +23,11 @@ const NavbarRJ = () => {
   
 
   const isShowProfileButton=user?user.user_type==2 && isProfileComplite:false
+  
   const isModal = user?user.user_type==1 && isAuthenticated :true
 
 
-// useEffect(() => {
-//  (()=>{ try {
 
-//     // 🔹 authData read
-//     const authData = localStorage.getItem("authData");
-//     // 🔹 user read
-//     const userData = localStorage.getItem("user");
-//     console.log("USER DATA FROM LOCAL" , userData)
-           
-//     if (authData && userData) {
-//       const user = JSON.parse(userData);
-     
-//       setUserUid( user.uuid);
-//       setIsLoggedIn(true);
-//       setUserType(user?.userType);
-     
-//       setCastingProfile(user?.update_profile)
-    
-//     } else {
-//       setIsLoggedIn(false);
-//       setUserType(null);
-//     }
-//   } catch (err) {
-//     console.error("Error reading user from localStorage:", err);
-//     setIsLoggedIn(false);
-//     setUserType(null);
-//   }})()
-// }, []);
 
 
 useEffect(() => {
